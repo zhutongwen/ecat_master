@@ -69,27 +69,16 @@ static uint8_t *domain1_pd = NULL;
 static ec_slave_config_t *sc_dig_out_01 = NULL;
 static ec_slave_config_t *sc_imu_01 = NULL;
 static ec_slave_config_t *sc_lan9252_01 = NULL;
+static ec_slave_config_t *sc_motor_01 = NULL;
 
 /****************************************************************************/
-
 // process data
-
-//#define BusCoupler01_Pos    0, 0
-#define DigOutSlave01_Pos   0, 1
-
-
-#define Beckhoff_EK1100 0x00000002, 0x044c2c52
-#define Beckhoff_EL2004 0x00000002, 0x07d43052
-
-
-// offsets for PDO entries
-static unsigned int off_dig_out0 = 0;
-
-/********************************************************
- *GQY_IMU
- */
+/****************************************************************************/
+//////////////////////////////////////////
+/// motor
+//////////////////////////////////////////
 #define IMU_Pos             0, 0
-#define GQY_IMU 0xE0000005, 0x26483052
+#define IMU                 0xE0000005, 0x26483052
 // offsets for PDO entries
 static unsigned int off_imu_gx;
 static unsigned int off_imu_gy;
@@ -99,7 +88,7 @@ static unsigned int off_imu_ay;
 static unsigned int off_imu_az;
 static unsigned int off_imu_counter;
 static unsigned int off_imu_led;
-struct gqy_imu_data_struct
+struct imu_data_struct
 {
     float gx;
     float gy;
@@ -110,44 +99,108 @@ struct gqy_imu_data_struct
     uint32_t counter;
     uint16_t led;
 };
-static struct gqy_imu_data_struct gqy_imu_data;
+static struct imu_data_struct imu_data;
+
+
+//////////////////////////////////////////
+/// motor
+//////////////////////////////////////////
+
+#define MOTOR_Pos       0, 1
+#define MOTOR           0x0000009a, 0x00030924
+// offsets for PDO entries
+static unsigned int off_motor_target_pos;
+static unsigned int off_motor_target_vel;
+static unsigned int off_motor_target_tor;
+static unsigned int off_motor_max_tor;
+static unsigned int off_motor_control_word;
+static unsigned int off_motor_mode;
+static unsigned int off_motor_vel_offset;
+static unsigned int off_motor_tor_offset;
+
+static unsigned int off_motor_actual_pos;
+static unsigned int off_motor_actual_vel;
+static unsigned int off_motor_actual_cur;
+static unsigned int off_motor_actual_tor;
+static unsigned int off_motor_status_word;
+static unsigned int off_motor_mode_display;
+
+struct motor_data_struct
+{
+    int32_t target_pos;
+    int32_t target_vel;
+    int16_t target_tor;
+    int16_t max_tor;
+    uint16_t control_word;
+    uint8_t mode;
+    int32_t vel_offset;
+    int16_t tor_offset;
+
+    int32_t actual_pos;
+    int32_t actual_vel;
+    int16_t actual_cur;
+    int16_t actual_tor;
+    uint16_t status_word;
+    uint8_t mode_display;
+};
+static struct motor_data_struct motor_data;
+
 
 /********************************************************
  *lan9252
  */
-#define WMLAN9252_IO_POS 0, 2
-#define WMLAN9252_IO 0xE0000002, 0x92521000
+#define WMLAN9252_IO_POS    0, 2
+#define WMLAN9252_IO        0xE0000002, 0x92521000
 // offsets for PDO entries
 static unsigned int off_analog_data;
 static unsigned int off_keys;
 static unsigned int off_leds;
 struct wmlan9252_io_data_struct
 {
-  uint16_t analog_data;
-  uint8_t key0_1;
-  uint8_t led0_7;
+    uint16_t analog_data;
+    uint8_t key0_1;
+    uint8_t led0_7;
 };
 static struct wmlan9252_io_data_struct wmlan9252_io_data;
 
 // process data
 const static ec_pdo_entry_reg_t domain1_regs[] =
 {
-    {DigOutSlave01_Pos, Beckhoff_EL2004, 0x7000, 0x01, &off_dig_out0, NULL},
-#if 1
+//    {DigOutSlave01_Pos, Beckhoff_EL2004, 0x7000, 0x01, &off_dig_out0, NULL},
+#if LAN9252
     {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x7000, 0x01, &off_leds, NULL},
     {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6000, 0x01, &off_keys, NULL},
     {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6020, 0x01, &off_analog_data, NULL},
 #endif
 
 #if 1
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x01, &off_imu_gx, NULL},
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x02, &off_imu_gy, NULL},
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x03, &off_imu_gz, NULL},
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x04, &off_imu_ax, NULL},
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x05, &off_imu_ay, NULL},
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x06, &off_imu_az, NULL},
-    {IMU_Pos,  GQY_IMU, 0x6000, 0x07, &off_imu_counter, NULL},
-    {IMU_Pos,  GQY_IMU, 0x7011, 0x01, &off_imu_led, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x01, &off_imu_gx, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x02, &off_imu_gy, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x03, &off_imu_gz, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x04, &off_imu_ax, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x05, &off_imu_ay, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x06, &off_imu_az, NULL},
+    {IMU_Pos,  IMU, 0x6000, 0x07, &off_imu_counter, NULL},
+    {IMU_Pos,  IMU, 0x7011, 0x01, &off_imu_led, NULL},
+#endif
+
+
+#if MOTOR
+    {MOTOR_Pos,  MOTOR, 0x607a, 0x00, &off_motor_target_pos, NULL},
+    {MOTOR_Pos,  MOTOR, 0x60ff, 0x00, &off_motor_target_vel, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6071, 0x00, &off_motor_target_tor, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6072, 0x00, &off_motor_max_tor, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6040, 0x00, &off_motor_control_word, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6060, 0x00, &off_motor_mode, NULL},
+    {MOTOR_Pos,  MOTOR, 0x60b1, 0x00, &off_motor_vel_offset, NULL},
+    {MOTOR_Pos,  MOTOR, 0x60b2, 0x00, &off_motor_tor_offset, NULL},
+
+    {MOTOR_Pos,  MOTOR, 0x6064, 0x00, &off_motor_actual_pos, NULL},
+    {MOTOR_Pos,  MOTOR, 0x606c, 0x00, &off_motor_actual_vel, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6078, 0x00, &off_motor_actual_cur, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6077, 0x00, &off_motor_actual_tor, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6041, 0x00, &off_motor_status_word, NULL},
+    {MOTOR_Pos,  MOTOR, 0x6061, 0x00, &off_motor_mode_display, NULL},
 #endif
     {}
 };
@@ -210,9 +263,9 @@ ec_sync_info_t wmlan9252_io_syncs[] = {
 };
 
 /*****************************************************************************/
-//GQY_IMU
+//IMU
 //TxPdo
-ec_pdo_entry_info_t gqy_imu_txpdo_entries[] = {
+ec_pdo_entry_info_t imu_txpdo_entries[] = {
     {0x6000, 0x01, 32}, /* gx */
     {0x6000, 0x02, 32}, /* gy */
     {0x6000, 0x03, 32}, /* gz */
@@ -222,22 +275,75 @@ ec_pdo_entry_info_t gqy_imu_txpdo_entries[] = {
     {0x6000, 0x07, 32}, /* counter */
 };
 
-ec_pdo_info_t gqy_imu_txpdos[] = {
-    {0x1a00, 7, gqy_imu_txpdo_entries + 0}, /* TxPdo Channel 1 */
+ec_pdo_info_t imu_txpdos[] = {
+    {0x1a00, 7, imu_txpdo_entries + 0}, /* TxPdo Channel 1 */
 };
 
 //RxPdo
-ec_pdo_entry_info_t gqy_imu_rxpdo_entries[] = {
+ec_pdo_entry_info_t imu_rxpdo_entries[] = {
     {0x7011, 0x01, 16}, /* led0_8 */
 };
 
-ec_pdo_info_t gqy_imu_rxpdos[] = {
-    {0x1601, 1, gqy_imu_rxpdo_entries + 0}, /* RxPdo Channel 1 */
+ec_pdo_info_t imu_rxpdos[] = {
+    {0x1601, 1, imu_rxpdo_entries + 0}, /* RxPdo Channel 1 */
 };
 
-ec_sync_info_t gqy_imu_io_syncs[] = {
-    {2, EC_DIR_OUTPUT, 1, gqy_imu_rxpdos, EC_WD_ENABLE},
-    {3, EC_DIR_INPUT,  1, gqy_imu_txpdos, EC_WD_ENABLE},
+ec_sync_info_t imu_io_syncs[] = {
+    {2, EC_DIR_OUTPUT, 1, imu_rxpdos, EC_WD_ENABLE},
+    {3, EC_DIR_INPUT,  1, imu_txpdos, EC_WD_ENABLE},
+    {0xff}
+};
+
+///////////////////////////////////////
+/// motor
+////////////////////////////////////////
+//RxPdo
+ec_pdo_entry_info_t motor_rxpdo_entries[] =
+{
+    {0x607a, 0x00, 32}, //pos_target_value  s32
+    {0x60ff, 0x00, 32}, //vel_target_value  s32
+    {0x6071, 0x00, 16}, //tor_target_value  s16
+    {0x6072, 0x00, 16}, //tor_max_value     s16
+    {0x6040, 0x00, 16}, //control_word      u16
+    {0x6060, 0x00, 8},  //module            u8
+
+    {0x60b1, 0x00, 32}, //velocity offset   s32
+    {0x60b2, 0x00, 16}, //torque_offset     s16
+};
+
+ec_pdo_info_t motor_rxpdos[] =
+{
+    {0x1605, 6, motor_rxpdo_entries + 0},
+    {0x1617, 1, motor_rxpdo_entries + 6},
+    {0x1618, 1, motor_rxpdo_entries + 7},
+};
+
+// TxPdo
+ec_pdo_entry_info_t motor_txpdo_entries[] =
+{
+    {0x6064, 0x00, 32}, //pos_actual_value  s32
+    {0x606c, 0x00, 32}, //vel_actual_value  s32
+    {0x6078, 0x00, 16}, //cur_actual_value  s16
+    {0x6077, 0x00, 16}, //tor_actual_value  s16
+
+    {0x6041, 0x00, 16}, //status_word       u16
+    {0x6061, 0x00, 8},  //module_display    u8
+};
+
+ec_pdo_info_t motor_txpdos[] =
+{
+    {0x1a0e, 1, motor_txpdo_entries + 0}, //pos_actual_value  s32
+    {0x1a11, 1, motor_txpdo_entries + 1}, //vel_actual_value  s32
+    {0x1a1f, 1, motor_txpdo_entries + 2}, //cur_actual_value  s16
+    {0x1a13, 1, motor_txpdo_entries + 3}, //tor_actual_value  s16
+
+    {0x1a0a, 1, motor_txpdo_entries + 4}, //status_word       u16
+    {0x1a0b, 1, motor_txpdo_entries + 5}, //module_display    u8
+};
+
+ec_sync_info_t motor_syncs[] = {
+    {2, EC_DIR_OUTPUT, 3, motor_rxpdos, EC_WD_ENABLE},
+    {3, EC_DIR_INPUT,  6, motor_txpdos, EC_WD_ENABLE},
     {0xff}
 };
 
@@ -314,7 +420,7 @@ void my_task_proc(void *arg)
         }
 /////////////////
 // lan9252
-#if 0
+#if LAN9252
         {
             static int counter_txrx = 0;
             if((++counter_txrx) >= 100)
@@ -346,33 +452,56 @@ void my_task_proc(void *arg)
                 counter_txrx = 0;
                 #if 1
                     // read process data
-                    gqy_imu_data.gx = EC_READ_FLOAT(domain1_pd + off_imu_gx);
-                    gqy_imu_data.gy = EC_READ_FLOAT(domain1_pd + off_imu_gy);
-                    gqy_imu_data.gz = EC_READ_FLOAT(domain1_pd + off_imu_gz);
-                    gqy_imu_data.ax = EC_READ_FLOAT(domain1_pd + off_imu_ax);
-                    gqy_imu_data.ay = EC_READ_FLOAT(domain1_pd + off_imu_ay);
-                    gqy_imu_data.az = EC_READ_FLOAT(domain1_pd + off_imu_az);
-                    gqy_imu_data.counter = EC_READ_U32(domain1_pd + off_imu_counter);
+                    imu_data.gx = EC_READ_FLOAT(domain1_pd + off_imu_gx);
+                    imu_data.gy = EC_READ_FLOAT(domain1_pd + off_imu_gy);
+                    imu_data.gz = EC_READ_FLOAT(domain1_pd + off_imu_gz);
+                    imu_data.ax = EC_READ_FLOAT(domain1_pd + off_imu_ax);
+                    imu_data.ay = EC_READ_FLOAT(domain1_pd + off_imu_ay);
+                    imu_data.az = EC_READ_FLOAT(domain1_pd + off_imu_az);
+                    imu_data.counter = EC_READ_U32(domain1_pd + off_imu_counter);
                     // write process data
                     EC_WRITE_U16(domain1_pd + off_imu_led, 0xaa55);
                 #endif
-//                 printf("ax:%f     ay:%f        imu counter:%d      \n\n",
-//                        gqy_imu_data.ax,
-//                        gqy_imu_data.ay,
-//                        gqy_imu_data.counter);
-                std::cout << "gx:" << gqy_imu_data.gx << endl;
-                std::cout << "gy:" << gqy_imu_data.gy << endl;
-                std::cout << "gz:" << gqy_imu_data.gz << endl;
-                std::cout << "ax:" << gqy_imu_data.ax << endl;
-                std::cout << "ay:" << gqy_imu_data.ay << endl;
-                std::cout << "az:" << gqy_imu_data.az << endl;
-                std::cout << "counter:" << gqy_imu_data.counter << endl;
+//                std::cout << "gx:" << imu_data.gx << endl;
+//                std::cout << "gy:" << imu_data.gy << endl;
+//                std::cout << "gz:" << imu_data.gz << endl;
+//                std::cout << "ax:" << imu_data.ax << endl;
+//                std::cout << "ay:" << imu_data.ay << endl;
+//                std::cout << "az:" << imu_data.az << endl;
+                std::cout << "counter:" << imu_data.counter << endl;
                 std::cout << endl;
             }
         }
 #endif
 
-        EC_WRITE_U8(domain1_pd + off_dig_out0, blink ? 0x0 : 0x0F);
+//////////////////////////////////////////////////////////////////////
+/// motor
+///////////////////////////////////////////////////////////////////////
+#if 1
+        {
+            static int counter_txrx = 0;
+            if((++counter_txrx) >= 1000)
+            {
+                counter_txrx = 0;
+                #if 1
+                    // read process data
+                    motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor_actual_pos);
+                    motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor_actual_vel);
+                    // write process data
+                    EC_WRITE_U16(domain1_pd + off_imu_led, 0xaa55);
+                #endif
+//                std::cout << "gx:" << imu_data.gx << endl;
+//                std::cout << "gy:" << imu_data.gy << endl;
+//                std::cout << "gz:" << imu_data.gz << endl;
+//                std::cout << "ax:" << imu_data.ax << endl;
+//                std::cout << "ay:" << imu_data.ay << endl;
+//                std::cout << "az:" << imu_data.az << endl;
+                std::cout << "actual_pos:" << motor_data.actual_pos << endl;
+                std::cout << "actual_vel:" << motor_data.actual_vel << endl;
+                std::cout << endl;
+            }
+        }
+#endif
 
         // send process data
         ecrt_domain_queue(domain1);
@@ -428,24 +557,41 @@ int main(int argc, char *argv[])
 //    if (!sc) {
 //        return -1;
 //    }
-///////////////////////////
-/// GQY IMU
-///////////////////////////
-    sc_imu_01 = ecrt_master_slave_config(master, IMU_Pos, GQY_IMU);
+////////////////////////////////////////////////////////////////////////////////////
+/// IMU
+////////////////////////////////////////////////////////////////////////////////////
+#if 1
+    sc_imu_01 = ecrt_master_slave_config(master, IMU_Pos, IMU);
     if(!sc_imu_01)
     {
         fprintf(stderr, "Failed to get slave configuration.\n");
         return -1;
     }
-    if (ecrt_slave_config_pdos(sc_imu_01, EC_END, gqy_imu_io_syncs))
+    if (ecrt_slave_config_pdos(sc_imu_01, EC_END, imu_io_syncs))
     {
         fprintf(stderr, "Failed to configure PDOs.\n");
         return -1;
     }
-/////////////////////////////
+#endif
+
+////////////////////////////////////////////////////////////////////////////////////
+/// motor
+////////////////////////////////////////////////////////////////////////////////////
+    sc_motor_01 = ecrt_master_slave_config(master, MOTOR_Pos, MOTOR);
+    if(!sc_motor_01)
+    {
+        fprintf(stderr, "Failed to get slave configuration.\n");
+        return -1;
+    }
+    if (ecrt_slave_config_pdos(sc_motor_01, EC_END, motor_syncs))
+    {
+        fprintf(stderr, "Failed to configure PDOs.\n");
+        return -1;
+    }
+//////////////////////////////////////////////////////////////////////////////////////
 /// lan9252
-/////////////////////////////
-#if 1
+//////////////////////////////////////////////////////////////////////////////////////
+#if LAN9252
     sc_lan9252_01 = ecrt_master_slave_config(master, WMLAN9252_IO_POS, WMLAN9252_IO);
     if (!sc_lan9252_01)
     {
@@ -459,17 +605,17 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    sc_dig_out_01 =
-        ecrt_master_slave_config(master, DigOutSlave01_Pos, Beckhoff_EL2004);
-    if (!sc_dig_out_01) {
-        fprintf(stderr, "Failed to get slave configuration.\n");
-        return -1;
-    }
+//    sc_dig_out_01 =
+//        ecrt_master_slave_config(master, DigOutSlave01_Pos, Beckhoff_EL2004);
+//    if (!sc_dig_out_01) {
+//        fprintf(stderr, "Failed to get slave configuration.\n");
+//        return -1;
+//    }
 
-    if (ecrt_slave_config_pdos(sc_dig_out_01, EC_END, slave_1_syncs)) {
-        fprintf(stderr, "Failed to configure PDOs.\n");
-        return -1;
-    }
+//    if (ecrt_slave_config_pdos(sc_dig_out_01, EC_END, slave_1_syncs)) {
+//        fprintf(stderr, "Failed to configure PDOs.\n");
+//        return -1;
+//    }
 
 
 
