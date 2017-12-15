@@ -126,6 +126,30 @@ master/fast:
 	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/build
 .PHONY : master/fast
 
+ecat_motor.o: ecat_motor.cpp.o
+.PHONY : ecat_motor.o
+
+# target to build an object file
+ecat_motor.cpp.o:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o
+.PHONY : ecat_motor.cpp.o
+
+ecat_motor.i: ecat_motor.cpp.i
+.PHONY : ecat_motor.i
+
+# target to preprocess a source file
+ecat_motor.cpp.i:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.i
+.PHONY : ecat_motor.cpp.i
+
+ecat_motor.s: ecat_motor.cpp.s
+.PHONY : ecat_motor.s
+
+# target to generate assembly for a file
+ecat_motor.cpp.s:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.s
+.PHONY : ecat_motor.cpp.s
+
 lan9252_IO.o: lan9252_IO.c.o
 .PHONY : lan9252_IO.o
 
@@ -184,6 +208,9 @@ help:
 	@echo "... lan9252_IO"
 	@echo "... master"
 	@echo "... rebuild_cache"
+	@echo "... ecat_motor.o"
+	@echo "... ecat_motor.i"
+	@echo "... ecat_motor.s"
 	@echo "... lan9252_IO.o"
 	@echo "... lan9252_IO.i"
 	@echo "... lan9252_IO.s"

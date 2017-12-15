@@ -34,7 +34,9 @@ ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
+  INCLUDE("/home/z/work/ecat_master/build/src/tinyxml2/cmake_install.cmake")
   INCLUDE("/home/z/work/ecat_master/build/src/etherlab/cmake_install.cmake")
+  INCLUDE("/home/z/work/ecat_master/build/src/test/cmake_install.cmake")
 
 ENDIF(NOT CMAKE_INSTALL_LOCAL_ONLY)
 

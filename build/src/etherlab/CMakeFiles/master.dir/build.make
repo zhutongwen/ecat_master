@@ -72,14 +72,39 @@ src/etherlab/CMakeFiles/master.dir/master.cpp.o.provides: src/etherlab/CMakeFile
 
 src/etherlab/CMakeFiles/master.dir/master.cpp.o.provides.build: src/etherlab/CMakeFiles/master.dir/master.cpp.o
 
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o: src/etherlab/CMakeFiles/master.dir/flags.make
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o: ../src/etherlab/ecat_motor.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/z/work/ecat_master/build/CMakeFiles $(CMAKE_PROGRESS_2)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o"
+	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/master.dir/ecat_motor.cpp.o -c /home/z/work/ecat_master/src/etherlab/ecat_motor.cpp
+
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/master.dir/ecat_motor.cpp.i"
+	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/z/work/ecat_master/src/etherlab/ecat_motor.cpp > CMakeFiles/master.dir/ecat_motor.cpp.i
+
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/master.dir/ecat_motor.cpp.s"
+	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/z/work/ecat_master/src/etherlab/ecat_motor.cpp -o CMakeFiles/master.dir/ecat_motor.cpp.s
+
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.requires:
+.PHONY : src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.requires
+
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.provides: src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.requires
+	$(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.provides.build
+.PHONY : src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.provides
+
+src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.provides.build: src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o
+
 # Object files for target master
 master_OBJECTS = \
-"CMakeFiles/master.dir/master.cpp.o"
+"CMakeFiles/master.dir/master.cpp.o" \
+"CMakeFiles/master.dir/ecat_motor.cpp.o"
 
 # External object files for target master
 master_EXTERNAL_OBJECTS =
 
 bin/master: src/etherlab/CMakeFiles/master.dir/master.cpp.o
+bin/master: src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o
 bin/master: src/etherlab/CMakeFiles/master.dir/build.make
 bin/master: src/etherlab/CMakeFiles/master.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable ../../bin/master"
@@ -90,6 +115,7 @@ src/etherlab/CMakeFiles/master.dir/build: bin/master
 .PHONY : src/etherlab/CMakeFiles/master.dir/build
 
 src/etherlab/CMakeFiles/master.dir/requires: src/etherlab/CMakeFiles/master.dir/master.cpp.o.requires
+src/etherlab/CMakeFiles/master.dir/requires: src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o.requires
 .PHONY : src/etherlab/CMakeFiles/master.dir/requires
 
 src/etherlab/CMakeFiles/master.dir/clean:

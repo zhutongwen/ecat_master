@@ -12,6 +12,8 @@ SET(CMAKE_MAKEFILE_DEPENDS
   "CMakeFiles/2.8.12.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/2.8.12.2/CMakeSystem.cmake"
   "../src/etherlab/CMakeLists.txt"
+  "../src/test/CMakeLists.txt"
+  "../src/tinyxml2/CMakeLists.txt"
   "/usr/share/cmake-2.8/Modules/CMakeCInformation.cmake"
   "/usr/share/cmake-2.8/Modules/CMakeCXXInformation.cmake"
   "/usr/share/cmake-2.8/Modules/CMakeCommonLanguageInclude.cmake"
@@ -38,11 +40,15 @@ SET(CMAKE_MAKEFILE_OUTPUTS
 # Byproducts of CMake generate step:
 SET(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/tinyxml2/CMakeFiles/CMakeDirectoryInformation.cmake"
   "src/etherlab/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/test/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 SET(CMAKE_DEPEND_INFO_FILES
+  "src/tinyxml2/CMakeFiles/tinyxml2_test.dir/DependInfo.cmake"
   "src/etherlab/CMakeFiles/lan9252_IO.dir/DependInfo.cmake"
   "src/etherlab/CMakeFiles/master.dir/DependInfo.cmake"
+  "src/test/CMakeFiles/vector.dir/DependInfo.cmake"
   )

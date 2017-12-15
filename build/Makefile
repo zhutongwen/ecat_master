@@ -99,6 +99,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named tinyxml2_test
+
+# Build rule for target.
+tinyxml2_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 tinyxml2_test
+.PHONY : tinyxml2_test
+
+# fast build rule for target.
+tinyxml2_test/fast:
+	$(MAKE) -f src/tinyxml2/CMakeFiles/tinyxml2_test.dir/build.make src/tinyxml2/CMakeFiles/tinyxml2_test.dir/build
+.PHONY : tinyxml2_test/fast
+
+#=============================================================================
 # Target rules for targets named lan9252_IO
 
 # Build rule for target.
@@ -124,6 +137,19 @@ master/fast:
 	$(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/build
 .PHONY : master/fast
 
+#=============================================================================
+# Target rules for targets named vector
+
+# Build rule for target.
+vector: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 vector
+.PHONY : vector
+
+# fast build rule for target.
+vector/fast:
+	$(MAKE) -f src/test/CMakeFiles/vector.dir/build.make src/test/CMakeFiles/vector.dir/build
+.PHONY : vector/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -132,8 +158,10 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... tinyxml2_test"
 	@echo "... lan9252_IO"
 	@echo "... master"
+	@echo "... vector"
 .PHONY : help
 
 

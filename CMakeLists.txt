@@ -31,6 +31,15 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 
 
+
+include_directories("/usr/xenomai/include")
+link_directories("/usr/xenomai/lib")
+
+include_directories("${PROJECT_SOURCE_DIR}/include")
+link_directories("${PROJECT_SOURCE_DIR}/lib")
+
+
 #add_subdirectory(src/socket)
-#add_subdirectory(src/tinyxml2)
+add_subdirectory(src/tinyxml2)
 add_subdirectory(src/etherlab)
+add_subdirectory(src/test)
