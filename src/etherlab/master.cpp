@@ -127,21 +127,21 @@ static unsigned int off_motor_mode_display;
 
 struct motor_data_struct
 {
-    int32_t target_pos;
-    int32_t target_vel;
-    int16_t target_tor;
-    int16_t max_tor;
+    int32_t  target_pos;
+    int32_t  target_vel;
+    int16_t  target_tor;
+    int16_t  max_tor;
     uint16_t control_word;
-    uint8_t mode;
-    int32_t vel_offset;
-    int16_t tor_offset;
+    uint8_t  mode;
+    int32_t  vel_offset;
+    int16_t  tor_offset;
 
-    int32_t actual_pos;
-    int32_t actual_vel;
-    int16_t actual_cur;
-    int16_t actual_tor;
+    int32_t  actual_pos;
+    int32_t  actual_vel;
+    int16_t  actual_cur;
+    int16_t  actual_tor;
     uint16_t status_word;
-    uint8_t mode_display;
+    uint8_t  mode_display;
 };
 static struct motor_data_struct motor_data;
 
@@ -444,10 +444,10 @@ void my_task_proc(void *arg)
 /////////////////////////////
 /// IMU
 /////////////////////////////
-#if 1
+#if IMU
         {
             static int counter_txrx = 0;
-            if((++counter_txrx) >= 1000)
+            if((++counter_txrx) >= 10)
             {
                 counter_txrx = 0;
                 #if 1
@@ -465,11 +465,10 @@ void my_task_proc(void *arg)
 //                std::cout << "gx:" << imu_data.gx << endl;
 //                std::cout << "gy:" << imu_data.gy << endl;
 //                std::cout << "gz:" << imu_data.gz << endl;
-//                std::cout << "ax:" << imu_data.ax << endl;
-//                std::cout << "ay:" << imu_data.ay << endl;
-//                std::cout << "az:" << imu_data.az << endl;
-                std::cout << "counter:" << imu_data.counter << endl;
-                std::cout << endl;
+                std::cout << "ax:" << imu_data.ax << endl;
+                std::cout << "ay:" << imu_data.ay << endl;
+                std::cout << "az:" << imu_data.az << endl;
+                std::cout << "counter:" << dec << imu_data.counter << endl;
             }
         }
 #endif
@@ -480,25 +479,67 @@ void my_task_proc(void *arg)
 #if 1
         {
             static int counter_txrx = 0;
-            if((++counter_txrx) >= 1000)
+            if((++counter_txrx) >= 10)
             {
                 counter_txrx = 0;
                 #if 1
                     // read process data
                     motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor_actual_pos);
                     motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor_actual_vel);
+
+                    motor_data.actual_cur = EC_READ_S16(domain1_pd + off_motor_actual_cur);
+                    motor_data.actual_tor = EC_READ_S16(domain1_pd + off_motor_actual_tor);
+                    motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_status_word);
+                    motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_mode_display);
                     // write process data
-                    EC_WRITE_U16(domain1_pd + off_imu_led, 0xaa55);
+                    //EC_WRITE_U16(domain1_pd + off_imu_led, 0xaa55);
                 #endif
-//                std::cout << "gx:" << imu_data.gx << endl;
-//                std::cout << "gy:" << imu_data.gy << endl;
-//                std::cout << "gz:" << imu_data.gz << endl;
-//                std::cout << "ax:" << imu_data.ax << endl;
-//                std::cout << "ay:" << imu_data.ay << endl;
-//                std::cout << "az:" << imu_data.az << endl;
-                std::cout << "actual_pos:" << motor_data.actual_pos << endl;
-                std::cout << "actual_vel:" << motor_data.actual_vel << endl;
+
+                std::cout << "actual_pos:" << dec << motor_data.actual_pos << endl;
+                std::cout << "actual_vel:" << dec << motor_data.actual_vel << endl;
+                std::cout << "actual_cur:" << dec << motor_data.actual_cur << endl;
+                std::cout << "actual_tor:" << dec << motor_data.actual_tor << endl;
+                std::cout << "status_word: 0x" << hex << motor_data.status_word << endl;
+                //std::cout << "mode_display: 0x" << hex << motor_data.mode_display << endl;
+                uint16_t x = (uint16_t)motor_data.mode_display;
+                std::cout << "mode_display: 0x" << hex << x << endl;
                 std::cout << endl;
+
+                //operation mode
+                if(motor_data.mode_display != 0x3)
+                {
+//                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x01);//position mode
+                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x03);//velocity mode
+//                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x03);//torque mode
+//                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x03);//homing mode
+                }
+                else
+                {
+                    //motor enable
+                    if(motor_data.status_word & 0x0040)// switch on disable
+                    {
+                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x0006); //shut down
+                    }
+                    else if ((motor_data.status_word & 0x006f) == 0x0021) //read to switch on
+                    {
+                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x0007); //switch on
+                    }
+                    else if ((motor_data.status_word & 0x006f) == 0x0023) //switch on
+                    {
+                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x000f); //Enable Operation
+                    }
+                    else if ((motor_data.status_word & 0x004f) == 0x0008) //falt
+                    {
+                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x0080); //falt restet
+                    }
+
+                    //motor move
+                    if((motor_data.status_word & 0x006f) == 0x0027)//operation enable
+                    {
+                        std::cout << "moveing ......." << endl;
+                        EC_WRITE_S32(domain1_pd+off_motor_target_vel, (int32_t)(655360*imu_data.az));
+                    }
+                }
             }
         }
 #endif
@@ -634,6 +675,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+/////////////////////////
+/// SDO
+#if MOTOR
+    {
+
+    }
+#endif
     ret = rt_task_create(&my_task, "my_task", 0, 80, T_FPU);
     if (ret < 0) {
         fprintf(stderr, "Failed to create task: %s\n", strerror(-ret));
