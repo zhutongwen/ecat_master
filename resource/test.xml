@@ -1,13 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <root name="ecat_controller">  
-	<elmo vender_id = "0x0000009a" product ="0x00030924" >  
-	    <eye>0 10 10</eye>  
-	    <front>0 0 -1</front>  
-	    <refUp>0 1 0</refUp>  
-	    <fov>90</fov>  
+
+
+	<elmo vender_id = "0x0000009a" product_code ="0x00030924" >  
+	    <rxpdo index="0x1605">
+			<target_pos 	index="0x607a" subindex="0x00" datatype="s32"/>
+			<target_vel 	index="0x60ff" subindex="0x00" datatype="s32"/>
+			<target_tor 	index="0x6071" subindex="0x00" datatype="s16"/>
+			<torque_max 	index="0x6072" subindex="0x00" datatype="s16"/>
+			<control_word 	index="0x6040" subindex="0x00" datatype="u16"/>
+			<operation_mode index="0x6060" subindex="0x00" datatype="u8"/>
+		</rxpdo>
+		<rxpdo index="0x1617">
+			<offset_vel		index="0x60b1" subindex="0x00" datatype="s32"/>
+		</rxpdo>
+		<rxpdo index="0x1618">
+			<offset_tor		index="0x60b1" subindex="0x00" datatype="s16"/>
+		</rxpdo>
+
+		<txpdo index="0x1a0e">
+			<actual_pos		index="0x6064" subindex="0x00" datatype="s32"/>
+		</txpdo>
+		<txpdo index="0x1a011">
+			<actual_vel		index="0x606c" subindex="0x00" datatype="s32"/>
+		</txpdo>
+		<txpdo index="0x1a1f">
+			<actual_cur		index="0x6078" subindex="0x00" datatype="s16"/>
+		</txpdo>
+		<txpdo index="0x1a13">
+			<actual_tor		index="0x6077" subindex="0x00" datatype="s16"/>
+		</txpdo>
+		<txpdo index="0x1a0a">
+			<status_word	index="0x6041" subindex="0x00" datatype="u16"/>
+		</txpdo>
+		<txpdo index="0x1a0b">
+			<mode_display	index="0x6061" subindex="0x00" datatype="u8"/>
+		</txpdo>
+
+		<sdo>
+			<home_mode		index="0x6098" subindex="0x00" datatype="s8" value="35"/>
+			<home_acc		index="0x609a" subindex="0x00" datatype="u32" value="200000"/>
+			<home_high_vel	index="0x6099" subindex="0x01" datatype="u32" value="200000"/>
+			<home_low_vel	index="0x6099" subindex="0x02" datatype="u32" value="100000"/>
+			<home_offset	index="0x607c" subindex="0x00" datatype="s32" value="0"/>
+		</sdo>
 	</elmo>  
-	<node type="Sphere">  
-	    <center>0 10 -10</center>  
-	    <radius>10</radius>  
-	</node>  
 </root>  

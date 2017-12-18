@@ -300,7 +300,7 @@ ec_pdo_entry_info_t motor_txpdo_entries[] =
     {0x6077, 0x00, 16}, //tor_actual_value  s16
 
     {0x6041, 0x00, 16}, //status_word       u16
-    {0x6061, 0x00, 8},  //module_display    u8
+    {0x6061, 0x00, 8},  //mode_display    u8
 };
 
 ec_pdo_info_t motor_txpdos[] =
