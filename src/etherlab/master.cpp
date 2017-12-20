@@ -48,6 +48,11 @@
 #include "iostream"
 
 #include "ecrt.h"
+#include "master.h"
+
+
+#include <unistd.h>
+#include <libgen.h>
 
 RT_TASK my_task;
 
@@ -74,161 +79,88 @@ static ec_slave_config_t *sc_motor_01 = NULL;
 /****************************************************************************/
 // process data
 /****************************************************************************/
-//////////////////////////////////////////
-/// motor
-//////////////////////////////////////////
-#define IMU_Pos             0, 0
-#define IMU                 0xE0000005, 0x26483052
-// offsets for PDO entries
-static unsigned int off_imu_gx;
-static unsigned int off_imu_gy;
-static unsigned int off_imu_gz;
-static unsigned int off_imu_ax;
-static unsigned int off_imu_ay;
-static unsigned int off_imu_az;
-static unsigned int off_imu_counter;
-static unsigned int off_imu_led;
-struct imu_data_struct
-{
-    float gx;
-    float gy;
-    float gz;
-    float ax;
-    float ay;
-    float az;
-    uint32_t counter;
-    uint16_t led;
-};
-static struct imu_data_struct imu_data;
+/*****************************************************************************/
+// imu
+#define IMU_0_Pos       0, 1
+#define IMU             0xE0000005, 0x26483052
+static off_imu_t    off_imu_0;
+static imu_data_t   imu_data;
 
-
-//////////////////////////////////////////
-/// motor
-//////////////////////////////////////////
-
-#define MOTOR_Pos       0, 1
+/*****************************************************************************/
+// motor
+#define MOTOR_0_Pos     0, 0
 #define MOTOR           0x0000009a, 0x00030924
-// offsets for PDO entries
-static unsigned int off_motor_target_pos;
-static unsigned int off_motor_target_vel;
-static unsigned int off_motor_target_tor;
-static unsigned int off_motor_max_tor;
-static unsigned int off_motor_control_word;
-static unsigned int off_motor_mode;
-static unsigned int off_motor_vel_offset;
-static unsigned int off_motor_tor_offset;
+static off_motor_t      off_motor_0;
+static motor_data_t     motor_data;
 
-static unsigned int off_motor_actual_pos;
-static unsigned int off_motor_actual_vel;
-static unsigned int off_motor_actual_cur;
-static unsigned int off_motor_actual_tor;
-static unsigned int off_motor_status_word;
-static unsigned int off_motor_mode_display;
-
-struct motor_data_struct
-{
-    int32_t  target_pos;
-    int32_t  target_vel;
-    int16_t  target_tor;
-    int16_t  max_tor;
-    uint16_t control_word;
-    uint8_t  mode;
-    int32_t  vel_offset;
-    int16_t  tor_offset;
-
-    int32_t  actual_pos;
-    int32_t  actual_vel;
-    int16_t  actual_cur;
-    int16_t  actual_tor;
-    uint16_t status_word;
-    uint8_t  mode_display;
-};
-static struct motor_data_struct motor_data;
-
-
-/********************************************************
- *lan9252
- */
+/*****************************************************************************/
+//lan9252
 #define WMLAN9252_IO_POS    0, 2
 #define WMLAN9252_IO        0xE0000002, 0x92521000
-// offsets for PDO entries
-static unsigned int off_analog_data;
-static unsigned int off_keys;
-static unsigned int off_leds;
-struct wmlan9252_io_data_struct
-{
-    uint16_t analog_data;
-    uint8_t key0_1;
-    uint8_t led0_7;
-};
-static struct wmlan9252_io_data_struct wmlan9252_io_data;
+static off_lan9252_io_t    off_lan9252_io;
+static wmlan9252_io_data_t wmlan9252_io_data;
 
 // process data
 const static ec_pdo_entry_reg_t domain1_regs[] =
 {
-//    {DigOutSlave01_Pos, Beckhoff_EL2004, 0x7000, 0x01, &off_dig_out0, NULL},
 #if LAN9252
-    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x7000, 0x01, &off_leds, NULL},
-    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6000, 0x01, &off_keys, NULL},
-    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6020, 0x01, &off_analog_data, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x7000, 0x01, &off_lan9252_io.leds, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6000, 0x01, &off_lan9252_io.keys, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6020, 0x01, &off_lan9252_io.analog_data, NULL},
 #endif
 
-#if 1
-    {IMU_Pos,  IMU, 0x6000, 0x01, &off_imu_gx, NULL},
-    {IMU_Pos,  IMU, 0x6000, 0x02, &off_imu_gy, NULL},
-    {IMU_Pos,  IMU, 0x6000, 0x03, &off_imu_gz, NULL},
-    {IMU_Pos,  IMU, 0x6000, 0x04, &off_imu_ax, NULL},
-    {IMU_Pos,  IMU, 0x6000, 0x05, &off_imu_ay, NULL},
-    {IMU_Pos,  IMU, 0x6000, 0x06, &off_imu_az, NULL},
-    {IMU_Pos,  IMU, 0x6000, 0x07, &off_imu_counter, NULL},
-    {IMU_Pos,  IMU, 0x7011, 0x01, &off_imu_led, NULL},
+#ifdef IMU_0_Pos
+    {IMU_0_Pos,  IMU, 0x6000, 0x01, &off_imu_0.gx, NULL},
+    {IMU_0_Pos,  IMU, 0x6000, 0x02, &off_imu_0.gy, NULL},
+    {IMU_0_Pos,  IMU, 0x6000, 0x03, &off_imu_0.gz, NULL},
+    {IMU_0_Pos,  IMU, 0x6000, 0x04, &off_imu_0.ax, NULL},
+    {IMU_0_Pos,  IMU, 0x6000, 0x05, &off_imu_0.ay, NULL},
+    {IMU_0_Pos,  IMU, 0x6000, 0x06, &off_imu_0.az, NULL},
+    {IMU_0_Pos,  IMU, 0x6000, 0x07, &off_imu_0.counter, NULL},
+    {IMU_0_Pos,  IMU, 0x7011, 0x01, &off_imu_0.led, NULL},
 #endif
 
 
-#if MOTOR
-    {MOTOR_Pos,  MOTOR, 0x607a, 0x00, &off_motor_target_pos, NULL},
-    {MOTOR_Pos,  MOTOR, 0x60ff, 0x00, &off_motor_target_vel, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6071, 0x00, &off_motor_target_tor, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6072, 0x00, &off_motor_max_tor, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6040, 0x00, &off_motor_control_word, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6060, 0x00, &off_motor_mode, NULL},
-    {MOTOR_Pos,  MOTOR, 0x60b1, 0x00, &off_motor_vel_offset, NULL},
-    {MOTOR_Pos,  MOTOR, 0x60b2, 0x00, &off_motor_tor_offset, NULL},
+#ifdef MOTOR_0_Pos
+    {MOTOR_0_Pos,  MOTOR, 0x607a, 0x00, &(off_motor_0.target_pos), NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x60ff, 0x00, &(off_motor_0.target_vel), NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6071, 0x00, &off_motor_0.target_tor, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6072, 0x00, &off_motor_0.max_tor, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6040, 0x00, &off_motor_0.control_word, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6060, 0x00, &off_motor_0.mode, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x60b1, 0x00, &off_motor_0.vel_offset, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x60b2, 0x00, &off_motor_0.tor_offset, NULL},
 
-    {MOTOR_Pos,  MOTOR, 0x6064, 0x00, &off_motor_actual_pos, NULL},
-    {MOTOR_Pos,  MOTOR, 0x606c, 0x00, &off_motor_actual_vel, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6078, 0x00, &off_motor_actual_cur, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6077, 0x00, &off_motor_actual_tor, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6041, 0x00, &off_motor_status_word, NULL},
-    {MOTOR_Pos,  MOTOR, 0x6061, 0x00, &off_motor_mode_display, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6064, 0x00, &off_motor_0.actual_pos, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x606c, 0x00, &off_motor_0.actual_vel, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6078, 0x00, &off_motor_0.actual_cur, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6077, 0x00, &off_motor_0.actual_tor, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6041, 0x00, &off_motor_0.status_word, NULL},
+    {MOTOR_0_Pos,  MOTOR, 0x6061, 0x00, &off_motor_0.mode_display, NULL},
 #endif
     {}
 };
 
 /*****************************************************************************/
-//wmlan9252_io
+//wmlan9252_io pdo
 //TxPdo
 ec_pdo_entry_info_t wmlan9252_io_txpdo_entries[] = {
     {0x6000, 0x01, 8}, /* key0_2 */
     {0, 0, 8}, //reserve
     {0x6020, 0x01, 16}, /* analog_Input */
 };
-
 ec_pdo_info_t wmlan9252_io_txpdos[] = {
     {0x1A02, 1, wmlan9252_io_txpdo_entries + 2}, /* TxPdo Channel 2 */
     {0x1A00, 2, wmlan9252_io_txpdo_entries + 0}, /* TxPdo Channel 1 */
 };
-
 //RxPdo
 ec_pdo_entry_info_t wmlan9252_io_rxpdo_entries[] = {
     {0x7000, 0x01, 8}, /* led0_8 */
     {0, 0, 8}, //reserve
 };
-
 ec_pdo_info_t wmlan9252_io_rxpdos[] = {
     {0x1601, 2, wmlan9252_io_rxpdo_entries + 0}, /* RxPdo Channel 1 */
 };
-
 ec_sync_info_t wmlan9252_io_syncs[] = {
     {2, EC_DIR_OUTPUT, 1, wmlan9252_io_rxpdos, EC_WD_ENABLE},
     {3, EC_DIR_INPUT,  2, wmlan9252_io_txpdos, EC_WD_ENABLE},
@@ -236,7 +168,7 @@ ec_sync_info_t wmlan9252_io_syncs[] = {
 };
 
 /*****************************************************************************/
-//IMU
+//IMU pdo
 //TxPdo
 ec_pdo_entry_info_t imu_txpdo_entries[] = {
     {0x6000, 0x01, 32}, /* gx */
@@ -247,29 +179,24 @@ ec_pdo_entry_info_t imu_txpdo_entries[] = {
     {0x6000, 0x06, 32}, /* az */
     {0x6000, 0x07, 32}, /* counter */
 };
-
 ec_pdo_info_t imu_txpdos[] = {
     {0x1a00, 7, imu_txpdo_entries + 0}, /* TxPdo Channel 1 */
 };
-
 //RxPdo
 ec_pdo_entry_info_t imu_rxpdo_entries[] = {
     {0x7011, 0x01, 16}, /* led0_8 */
 };
-
 ec_pdo_info_t imu_rxpdos[] = {
     {0x1601, 1, imu_rxpdo_entries + 0}, /* RxPdo Channel 1 */
 };
-
 ec_sync_info_t imu_io_syncs[] = {
     {2, EC_DIR_OUTPUT, 1, imu_rxpdos, EC_WD_ENABLE},
     {3, EC_DIR_INPUT,  1, imu_txpdos, EC_WD_ENABLE},
     {0xff}
 };
 
-///////////////////////////////////////
-/// motor
-////////////////////////////////////////
+/*****************************************************************************/
+// motor pdo
 //RxPdo
 ec_pdo_entry_info_t motor_rxpdo_entries[] =
 {
@@ -283,14 +210,12 @@ ec_pdo_entry_info_t motor_rxpdo_entries[] =
     {0x60b1, 0x00, 32}, //velocity offset   s32
     {0x60b2, 0x00, 16}, //torque_offset     s16
 };
-
 ec_pdo_info_t motor_rxpdos[] =
 {
     {0x1605, 6, motor_rxpdo_entries + 0},
     {0x1617, 1, motor_rxpdo_entries + 6},
     {0x1618, 1, motor_rxpdo_entries + 7},
 };
-
 // TxPdo
 ec_pdo_entry_info_t motor_txpdo_entries[] =
 {
@@ -302,7 +227,6 @@ ec_pdo_entry_info_t motor_txpdo_entries[] =
     {0x6041, 0x00, 16}, //status_word       u16
     {0x6061, 0x00, 8},  //mode_display    u8
 };
-
 ec_pdo_info_t motor_txpdos[] =
 {
     {0x1a0e, 1, motor_txpdo_entries + 0}, //pos_actual_value  s32
@@ -313,7 +237,6 @@ ec_pdo_info_t motor_txpdos[] =
     {0x1a0a, 1, motor_txpdo_entries + 4}, //status_word       u16
     {0x1a0b, 1, motor_txpdo_entries + 5}, //module_display    u8
 };
-
 ec_sync_info_t motor_syncs[] = {
     {2, EC_DIR_OUTPUT, 3, motor_rxpdos, EC_WD_ENABLE},
     {3, EC_DIR_INPUT,  6, motor_txpdos, EC_WD_ENABLE},
@@ -373,7 +296,8 @@ void my_task_proc(void *arg)
 
     rt_task_set_periodic(NULL, TM_NOW, 1000000); // ns
 
-    while (run) {
+    while (run)
+    {
         rt_task_wait_period(NULL);
 
         cycle_counter++;
@@ -391,9 +315,9 @@ void my_task_proc(void *arg)
         if (!(cycle_counter % 200)) {
             blink = !blink;
         }
-/////////////////
-// lan9252
-#if LAN9252
+        /****************************************************************************/
+        // lan9252
+        #ifdef LAN9252
         {
             static int counter_txrx = 0;
             if((++counter_txrx) >= 100)
@@ -412,12 +336,11 @@ void my_task_proc(void *arg)
                         wmlan9252_io_data.key0_1);
             }
         }
-#endif
+        #endif
 
-/////////////////////////////
-/// IMU
-/////////////////////////////
-#if IMU
+        /****************************************************************************/
+        // IMU
+        #ifdef IMU_0_Pos
         {
             static int counter_txrx = 0;
             if((++counter_txrx) >= 10)
@@ -425,15 +348,15 @@ void my_task_proc(void *arg)
                 counter_txrx = 0;
                 #if 1
                     // read process data
-                    imu_data.gx = EC_READ_FLOAT(domain1_pd + off_imu_gx);
-                    imu_data.gy = EC_READ_FLOAT(domain1_pd + off_imu_gy);
-                    imu_data.gz = EC_READ_FLOAT(domain1_pd + off_imu_gz);
-                    imu_data.ax = EC_READ_FLOAT(domain1_pd + off_imu_ax);
-                    imu_data.ay = EC_READ_FLOAT(domain1_pd + off_imu_ay);
-                    imu_data.az = EC_READ_FLOAT(domain1_pd + off_imu_az);
-                    imu_data.counter = EC_READ_U32(domain1_pd + off_imu_counter);
+                    imu_data.gx = EC_READ_FLOAT(domain1_pd + off_imu_0.gx);
+                    imu_data.gy = EC_READ_FLOAT(domain1_pd + off_imu_0.gy);
+                    imu_data.gz = EC_READ_FLOAT(domain1_pd + off_imu_0.gz);
+                    imu_data.ax = EC_READ_FLOAT(domain1_pd + off_imu_0.ax);
+                    imu_data.ay = EC_READ_FLOAT(domain1_pd + off_imu_0.ay);
+                    imu_data.az = EC_READ_FLOAT(domain1_pd + off_imu_0.az);
+                    imu_data.counter = EC_READ_U32(domain1_pd + off_imu_0.counter);
                     // write process data
-                    EC_WRITE_U16(domain1_pd + off_imu_led, 0xaa55);
+                    EC_WRITE_U16(domain1_pd + off_imu_0.led, 0xaa55);
                 #endif
 //                std::cout << "gx:" << imu_data.gx << endl;
 //                std::cout << "gy:" << imu_data.gy << endl;
@@ -444,12 +367,11 @@ void my_task_proc(void *arg)
                 std::cout << "counter:" << dec << imu_data.counter << endl;
             }
         }
-#endif
+        #endif
 
-//////////////////////////////////////////////////////////////////////
-/// motor
-///////////////////////////////////////////////////////////////////////
-#if 1
+        /****************************************************************************/
+        // motor
+        #ifdef MOTOR_0_Pos
         {
             static int counter_txrx = 0;
             if((++counter_txrx) >= 10)
@@ -457,15 +379,15 @@ void my_task_proc(void *arg)
                 counter_txrx = 0;
                 #if 1
                     // read process data
-                    motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor_actual_pos);
-                    motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor_actual_vel);
+                    motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor_0.actual_pos);
+                    motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor_0.actual_vel);
 
-                    motor_data.actual_cur = EC_READ_S16(domain1_pd + off_motor_actual_cur);
-                    motor_data.actual_tor = EC_READ_S16(domain1_pd + off_motor_actual_tor);
-                    motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_status_word);
-                    motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_mode_display);
+                    motor_data.actual_cur = EC_READ_S16(domain1_pd + off_motor_0.actual_cur);
+                    motor_data.actual_tor = EC_READ_S16(domain1_pd + off_motor_0.actual_tor);
+                    motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_0.status_word);
+                    motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_0.mode_display);
                     // write process data
-                    //EC_WRITE_U16(domain1_pd + off_imu_led, 0xaa55);
+                    //EC_WRITE_U16(domain1_pd + off_imu_0.led, 0xaa55);
                 #endif
 
                 std::cout << "actual_pos:" << dec << motor_data.actual_pos << endl;
@@ -481,41 +403,41 @@ void my_task_proc(void *arg)
                 //operation mode
                 if(motor_data.mode_display != 0x3)
                 {
-//                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x01);//position mode
-                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x03);//velocity mode
-//                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x03);//torque mode
-//                    EC_WRITE_U8(domain1_pd + off_motor_mode, 0x03);//homing mode
+//                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x01);//position mode
+                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//velocity mode
+//                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//torque mode
+//                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//homing mode
                 }
                 else
                 {
                     //motor enable
                     if(motor_data.status_word & 0x0040)// switch on disable
                     {
-                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x0006); //shut down
+                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0006); //shut down
                     }
                     else if ((motor_data.status_word & 0x006f) == 0x0021) //read to switch on
                     {
-                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x0007); //switch on
+                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0007); //switch on
                     }
                     else if ((motor_data.status_word & 0x006f) == 0x0023) //switch on
                     {
-                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x000f); //Enable Operation
+                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x000f); //Enable Operation
                     }
                     else if ((motor_data.status_word & 0x004f) == 0x0008) //falt
                     {
-                        EC_WRITE_U16(domain1_pd + off_motor_control_word, 0x0080); //falt restet
+                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0080); //falt restet
                     }
 
                     //motor move
                     if((motor_data.status_word & 0x006f) == 0x0027)//operation enable
                     {
                         std::cout << "moveing ......." << endl;
-                        EC_WRITE_S32(domain1_pd+off_motor_target_vel, (int32_t)(655360*imu_data.az));
+                        EC_WRITE_S32(domain1_pd+off_motor_0.target_vel, (int32_t)(655360*imu_data.ax));
                     }
                 }
             }
         }
-#endif
+        #endif
 
         // send process data
         ecrt_domain_queue(domain1);
@@ -538,7 +460,7 @@ void signal_handler(int sig)
 
 int main(int argc, char *argv[])
 {
-    ec_slave_config_t *sc;
+    chdir(dirname(argv[0])); //设置当前目录为应用程序所在的目录。
     int ret;
 
     /* Perform auto-init of rt_print buffers if the task doesn't do so */
@@ -574,8 +496,8 @@ int main(int argc, char *argv[])
 ////////////////////////////////////////////////////////////////////////////////////
 /// IMU
 ////////////////////////////////////////////////////////////////////////////////////
-#if 1
-    sc_imu_01 = ecrt_master_slave_config(master, IMU_Pos, IMU);
+#ifdef IMU_0_Pos
+    sc_imu_01 = ecrt_master_slave_config(master, IMU_0_Pos, IMU);
     if(!sc_imu_01)
     {
         fprintf(stderr, "Failed to get slave configuration.\n");
@@ -591,7 +513,7 @@ int main(int argc, char *argv[])
 ////////////////////////////////////////////////////////////////////////////////////
 /// motor
 ////////////////////////////////////////////////////////////////////////////////////
-    sc_motor_01 = ecrt_master_slave_config(master, MOTOR_Pos, MOTOR);
+    sc_motor_01 = ecrt_master_slave_config(master, MOTOR_0_Pos, MOTOR);
     if(!sc_motor_01)
     {
         fprintf(stderr, "Failed to get slave configuration.\n");
@@ -619,25 +541,11 @@ int main(int argc, char *argv[])
     }
 #endif
 
-//    sc_dig_out_01 =
-//        ecrt_master_slave_config(master, DigOutSlave01_Pos, Beckhoff_EL2004);
-//    if (!sc_dig_out_01) {
-//        fprintf(stderr, "Failed to get slave configuration.\n");
-//        return -1;
-//    }
-
-//    if (ecrt_slave_config_pdos(sc_dig_out_01, EC_END, slave_1_syncs)) {
-//        fprintf(stderr, "Failed to configure PDOs.\n");
-//        return -1;
-//    }
-
-
-
     if (ecrt_domain_reg_pdo_entry_list(domain1, domain1_regs)) {
         fprintf(stderr, "PDO entry registration failed!\n");
         return -1;
     }
-
+std::cout << "2" << std::endl;
     printf("Activating master...\n");
     if (ecrt_master_activate(master)) {
         return -1;

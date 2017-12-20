@@ -35,6 +35,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -60,6 +62,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -85,6 +89,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -110,6 +116,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -135,6 +143,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -160,6 +170,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -185,6 +197,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -210,6 +224,8 @@
          <Option compiler="gcc" />
          <Compiler>
             <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
             <Add directory="/usr/include" />
             <Add directory="/usr/include/c++/4.8" />
             <Add directory="/usr/include/c++/4.8/backward" />
@@ -241,6 +257,8 @@
       <Unit filename="/home/z/work/ecat_master/src/tinyxml2/tinyxml_test.cpp">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/ecat_motor.h">
+      </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/master.h">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/tinyxml2/tinyxml2.h">
       </Unit>

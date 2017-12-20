@@ -35,6 +35,8 @@ set(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 include_directories("/usr/xenomai/include")
 link_directories("/usr/xenomai/lib")
 
+include_directories("${PROJECT_SOURCE_DIR}/src/ethercat")
+include_directories("${PROJECT_SOURCE_DIR}/src/tinyxml2")
 include_directories("${PROJECT_SOURCE_DIR}/include")
 link_directories("${PROJECT_SOURCE_DIR}/lib")
 

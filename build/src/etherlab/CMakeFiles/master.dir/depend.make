@@ -7,6 +7,7 @@ src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o: ../src/etherlab/ecrt.h
 
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/ecrt.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/master.cpp
+src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/master.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/asm-generic/xenomai/arith.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/asm-generic/xenomai/features.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/asm-generic/xenomai/hal.h

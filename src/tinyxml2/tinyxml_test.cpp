@@ -4,13 +4,16 @@
 
 
 #include <iostream>
-#include <string>
+#include <vector>
 #include "tinyxml2.h"
 #include <unistd.h>
 #include <libgen.h>
 
+#include "ecrt.h"
+
 using namespace std;
 using namespace tinyxml2;
+
 void example1()
 {
     XMLDocument doc;
@@ -21,11 +24,9 @@ void example1()
     }
 
     XMLElement *root=doc.RootElement();
-    std::cout << std::endl;
-    std::cout << root->FirstAttribute()->Name() << ":" ;
-    std::cout << root->FirstAttribute()->Value() << std::endl;
 
-    std::cout << std::endl;
+    ec_sync_info_t temp_sync;
+    vector<ec_sync_info_t> motor_syncs;
 
     XMLElement *elmo = root->FirstChildElement("elmo");
     if(elmo)
@@ -36,54 +37,116 @@ void example1()
         std::cout << vendor_id->Name() << ":" << vendor_id->Value() << " ";
         std::cout << product_code->Name() << ":" << product_code->Value() << std::endl;
 
+
+        static vector<ec_pdo_entry_info_t> motor_rxpdo_entries;
+        static vector<ec_pdo_entry_info_t> motor_txpdo_entries;
+        static vector<ec_pdo_info_t> motor_rxpdos;
+        static vector<ec_pdo_info_t> motor_txpdos;
+
+#if(1)
         XMLElement *rxpdo = elmo->FirstChildElement("rxpdo");
-        while(rxpdo)
+        if(rxpdo)
         {
-            const XMLAttribute *rxpdo_index = rxpdo->FindAttribute("index");
-            std::cout << rxpdo->Name() << " ";
-            std::cout << rxpdo_index->Name() << ":" << rxpdo_index->Value() << std::endl;
-
-            XMLElement *entry = rxpdo->FirstChildElement();
-            while(entry)
+            ec_pdo_info_t temp_pdo;
+            while(rxpdo)
             {
-                const XMLAttribute *entry_index = entry->FindAttribute("index");
-                const XMLAttribute *entry_subindex = entry->FindAttribute("subindex");
-                const XMLAttribute *entry_datatype = entry->FindAttribute("datatype");
-                std::cout << "  " << entry->Name() << "  ";
-                std::cout << "  " << entry_index->Name() <<":"<< entry_index->Value() << "  ";
-                std::cout << "  " << entry_subindex->Name() << ":" << entry_subindex->Value() << "  ";
-                std::cout << "  " << entry_datatype->Name() << ":" << entry_datatype->Value() << std::endl;
+                const XMLAttribute *pdo_index = rxpdo->FindAttribute("index");
+                std::cout << rxpdo->Name() << " " << pdo_index->Name() << ":" << pdo_index->Value() << std::endl;
 
-                entry = entry->NextSiblingElement();
+                ec_pdo_entry_info_t temp_entry;
+
+                XMLElement *entry = rxpdo->FirstChildElement();
+                unsigned int  n_entries = 0;
+                while(entry)
+                {
+                    n_entries ++;
+                    {
+                        temp_entry.index = std::strtoul(entry->FindAttribute("index")->Value(),0,0);
+                        temp_entry.subindex = std::strtoul(entry->FindAttribute("subindex")->Value(),0,0);
+                        temp_entry.bit_length = std::strtoul(entry->FindAttribute("bitlength")->Value(),0,0);
+                        motor_rxpdo_entries.push_back(temp_entry);
+                    }
+                    entry = entry->NextSiblingElement();
+                }
+                {
+                    static unsigned int sum_n_entries = 0;
+                    temp_pdo.index = std::strtoul((rxpdo->FindAttribute("index")->Value()),0,0);
+                    temp_pdo.n_entries = n_entries;
+                    temp_pdo.entries = &(motor_rxpdo_entries[sum_n_entries]);
+                    motor_rxpdos.push_back(temp_pdo);
+                    sum_n_entries += n_entries;
+                    n_entries=0;
+                }
+                std::cout << std::endl;
+                rxpdo = rxpdo->NextSiblingElement("rxpdo");
             }
-            std::cout << std::endl;
-            rxpdo = rxpdo->NextSiblingElement("rxpdo");
-        }
+            temp_sync.index = 2;
+            temp_sync.dir = EC_DIR_OUTPUT;
+            temp_sync.n_pdos = motor_rxpdos.size();
+            temp_sync.pdos = &(motor_rxpdos[0]);
+            temp_sync.watchdog_mode = EC_WD_ENABLE;
 
+            motor_syncs.push_back(temp_sync);
+            std::cout << dec << motor_rxpdo_entries.size() << std::endl;
+            std::cout << dec << temp_sync.n_pdos << std::endl;
+            std::cout << dec << motor_syncs.size() << std::endl;
+        }
+#endif
+#if(1)
         XMLElement *txpdo = elmo->FirstChildElement("txpdo");
-        while(txpdo)
+        if(txpdo)
         {
-            const XMLAttribute *txpdo_index = txpdo->FindAttribute("index");
-            std::cout << txpdo->Name() << " ";
-            std::cout << txpdo_index->Name() << ":" << txpdo_index->Value() << std::endl;
-
-            XMLElement *entry = txpdo->FirstChildElement();
-            while(entry)
+            ec_pdo_info_t temp_pdo;
+            while(txpdo)
             {
-                const XMLAttribute *entry_index = entry->FindAttribute("index");
-                const XMLAttribute *entry_subindex = entry->FindAttribute("subindex");
-                const XMLAttribute *entry_datatype = entry->FindAttribute("datatype");
-                std::cout << "  " << entry->Name() << "  ";
-                std::cout << "  " << entry_index->Name() <<":"<< entry_index->Value() << "  ";
-                std::cout << "  " << entry_subindex->Name() << ":" << entry_subindex->Value() << "  ";
-                std::cout << "  " << entry_datatype->Name() << ":" << entry_datatype->Value() << std::endl;
+                const XMLAttribute *pdo_index = txpdo->FindAttribute("index");
+                std::cout << txpdo->Name() << " " << pdo_index->Name() << ":" << pdo_index->Value() << std::endl;
 
-                entry = entry->NextSiblingElement();
+                ec_pdo_entry_info_t temp_entry;
+
+                XMLElement *entry = txpdo->FirstChildElement();
+                unsigned int  n_entries = 0;
+                while(entry)
+                {
+                    n_entries ++;
+                    {
+                        temp_entry.index = std::strtoul(entry->FindAttribute("index")->Value(),0,0);
+                        temp_entry.subindex = std::strtoul(entry->FindAttribute("subindex")->Value(),0,0);
+                        temp_entry.bit_length = std::strtoul(entry->FindAttribute("bitlength")->Value(),0,0);
+                        motor_txpdo_entries.push_back(temp_entry);
+                    }
+                    entry = entry->NextSiblingElement();
+                }
+                {
+                    static unsigned int sum_n_entries = 0;
+                    temp_pdo.index = std::strtoul((txpdo->FindAttribute("index")->Value()),0,0);
+                    temp_pdo.n_entries = n_entries;
+                    temp_pdo.entries = &(motor_txpdo_entries[sum_n_entries]);
+                    motor_txpdos.push_back(temp_pdo);
+                    sum_n_entries += n_entries;
+                    n_entries=0;
+                }
+                std::cout << std::endl;
+                txpdo = txpdo->NextSiblingElement("txpdo");
             }
-            std::cout << std::endl;
-            txpdo = txpdo->NextSiblingElement("txpdo");
-        }
+            temp_sync.index = 3;
+            temp_sync.dir = EC_DIR_INPUT;
+            temp_sync.n_pdos = motor_txpdos.size();
+            temp_sync.pdos = &(motor_txpdos[0]);
+            temp_sync.watchdog_mode = EC_WD_ENABLE;
 
+            motor_syncs.push_back(temp_sync);
+            std::cout << dec << motor_txpdo_entries.size() << std::endl;
+            std::cout << dec << temp_sync.n_pdos << std::endl;
+            std::cout << dec << motor_syncs.size() << std::endl;
+
+            temp_sync.index = 0xff; //end of the list
+            motor_syncs.push_back(temp_sync);
+            std::cout << dec << motor_syncs.size() << std::endl;
+
+        }
+#endif
+#if(0)
         XMLElement *sdo = elmo->FirstChildElement("sdo");
         while(sdo)
         {
@@ -104,6 +167,7 @@ void example1()
             std::cout << std::endl;
             sdo = sdo->NextSiblingElement("sdo");
         }
+#endif
     }
     std::cout << std::endl;
 }

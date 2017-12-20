@@ -57,6 +57,14 @@ iostream
 /home/z/work/ecat_master/src/etherlab/iostream
 ecrt.h
 /home/z/work/ecat_master/src/etherlab/ecrt.h
+master.h
+/home/z/work/ecat_master/src/etherlab/master.h
+unistd.h
+-
+libgen.h
+-
+
+/home/z/work/ecat_master/src/etherlab/master.h
 
 /usr/xenomai/include/asm-generic/xenomai/arith.h
 asm/byteorder.h
