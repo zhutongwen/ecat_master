@@ -14,21 +14,26 @@
 using namespace std;
 using namespace tinyxml2;
 
+vector<ec_pdo_entry_info_t> motor_rxpdo_entries;
+vector<ec_pdo_entry_info_t> motor_txpdo_entries;
+vector<ec_pdo_info_t> motor_rxpdos;
+vector<ec_pdo_info_t> motor_txpdos;
+
 void example1()
 {
     XMLDocument doc;
     if(doc.LoadFile("../../resource/test.xml") != XML_SUCCESS)
     {
-       std::cout << "load text.xml file fault!" << doc.LoadFile("test.xml") << std::endl;
+       std::cout << "load text.xml file fault!" << doc.ErrorName() << std::endl;
        exit(1);
     }
 
-    XMLElement *root=doc.RootElement();
+    const XMLElement *root=doc.RootElement();
 
     ec_sync_info_t temp_sync;
     vector<ec_sync_info_t> motor_syncs;
 
-    XMLElement *elmo = root->FirstChildElement("elmo");
+    const XMLElement *elmo = root->FirstChildElement("elmo");
     if(elmo)
     {
         std::cout << elmo->Name() << " ";
@@ -38,13 +43,8 @@ void example1()
         std::cout << product_code->Name() << ":" << product_code->Value() << std::endl;
 
 
-        static vector<ec_pdo_entry_info_t> motor_rxpdo_entries;
-        static vector<ec_pdo_entry_info_t> motor_txpdo_entries;
-        static vector<ec_pdo_info_t> motor_rxpdos;
-        static vector<ec_pdo_info_t> motor_txpdos;
-
 #if(1)
-        XMLElement *rxpdo = elmo->FirstChildElement("rxpdo");
+        const XMLElement *rxpdo = elmo->FirstChildElement("rxpdo");
         if(rxpdo)
         {
             ec_pdo_info_t temp_pdo;
@@ -55,7 +55,7 @@ void example1()
 
                 ec_pdo_entry_info_t temp_entry;
 
-                XMLElement *entry = rxpdo->FirstChildElement();
+                const XMLElement *entry = rxpdo->FirstChildElement();
                 unsigned int  n_entries = 0;
                 while(entry)
                 {
@@ -93,7 +93,7 @@ void example1()
         }
 #endif
 #if(1)
-        XMLElement *txpdo = elmo->FirstChildElement("txpdo");
+        const XMLElement *txpdo = elmo->FirstChildElement("txpdo");
         if(txpdo)
         {
             ec_pdo_info_t temp_pdo;
@@ -104,7 +104,7 @@ void example1()
 
                 ec_pdo_entry_info_t temp_entry;
 
-                XMLElement *entry = txpdo->FirstChildElement();
+                const XMLElement *entry = txpdo->FirstChildElement();
                 unsigned int  n_entries = 0;
                 while(entry)
                 {
@@ -141,7 +141,9 @@ void example1()
             std::cout << dec << motor_syncs.size() << std::endl;
 
             temp_sync.index = 0xff; //end of the list
-            motor_syncs.push_back(temp_sync);
+            motor_syncs.push_back(ec_sync_info_t{
+                                      0xff,//end of the list
+                                  });
             std::cout << dec << motor_syncs.size() << std::endl;
 
         }
@@ -169,6 +171,25 @@ void example1()
         }
 #endif
     }
+    cout << "...................." << endl;
+    for (auto val : motor_syncs)
+    {
+        cout << (uint16_t)val.index << endl;
+        cout << (uint16_t)val.dir << endl;
+        cout << (uint16_t)val.n_pdos << endl;
+        for(int i=0; i<val.n_pdos; i++)
+        {
+            cout << "   " << hex << (uint16_t)((val.pdos+i)->index) << "  ";
+            cout << "   " << hex << (uint16_t)((val.pdos+i)->n_entries) << endl;
+            for(int j=0; j<(val.pdos+i)->n_entries; j++)
+            {
+                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->index) << " ";
+                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->subindex) << " ";
+                cout << "      " << dec << (uint16_t)(((val.pdos+i)->entries+j)->bit_length) << endl;
+            }
+        }
+    }
+
     std::cout << std::endl;
 }
 int main(int argc, char** argv)

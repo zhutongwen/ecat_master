@@ -6,6 +6,36 @@
 
 #IncludeRegexTransform: 
 
+../src/tinyxml2/tinyxml2.h
+ctype.h
+-
+limits.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+stddef.h
+-
+cctype
+-
+climits
+-
+cstdio
+-
+cstdlib
+-
+cstring
+-
+stdint.h
+-
+android/log.h
+-
+assert.h
+-
+
 /home/z/work/ecat_master/src/etherlab/ecrt.h
 asm/byteorder.h
 -
@@ -63,6 +93,10 @@ unistd.h
 -
 libgen.h
 -
+vector
+-
+tinyxml2.h
+/home/z/work/ecat_master/src/etherlab/tinyxml2.h
 
 /home/z/work/ecat_master/src/etherlab/master.h
 

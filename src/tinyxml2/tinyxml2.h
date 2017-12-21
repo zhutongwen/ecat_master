@@ -1603,9 +1603,9 @@ private:
     XMLElement( const XMLElement& );	// not supported
     void operator=( const XMLElement& );	// not supported
 
-//    XMLAttribute* FindAttribute( const char* name ) {
-//        return const_cast<XMLAttribute*>(const_cast<const XMLElement*>(this)->FindAttribute( name ));
-//    }
+    XMLAttribute* FindAttribute( const char* name ) {
+        return const_cast<XMLAttribute*>(const_cast<const XMLElement*>(this)->FindAttribute( name ));
+    }
     XMLAttribute* FindOrCreateAttribute( const char* name );
     //void LinkAttribute( XMLAttribute* attrib );
     char* ParseAttributes( char* p, int* curLineNumPtr );

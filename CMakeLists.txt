@@ -31,6 +31,9 @@ cmake_minimum_required(VERSION 2.8)
 set(CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 
 
+set(CMAKE_BUILD_TYPE "Debug")
+set(CMAKE_BUILD_TYPE Debug CACHE STRING "set build type to debug")
+
 
 include_directories("/usr/xenomai/include")
 link_directories("/usr/xenomai/lib")

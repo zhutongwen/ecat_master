@@ -126,6 +126,30 @@ master/fast:
 	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/build
 .PHONY : master/fast
 
+__/tinyxml2/tinyxml2.o: __/tinyxml2/tinyxml2.cpp.o
+.PHONY : __/tinyxml2/tinyxml2.o
+
+# target to build an object file
+__/tinyxml2/tinyxml2.cpp.o:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o
+.PHONY : __/tinyxml2/tinyxml2.cpp.o
+
+__/tinyxml2/tinyxml2.i: __/tinyxml2/tinyxml2.cpp.i
+.PHONY : __/tinyxml2/tinyxml2.i
+
+# target to preprocess a source file
+__/tinyxml2/tinyxml2.cpp.i:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.i
+.PHONY : __/tinyxml2/tinyxml2.cpp.i
+
+__/tinyxml2/tinyxml2.s: __/tinyxml2/tinyxml2.cpp.s
+.PHONY : __/tinyxml2/tinyxml2.s
+
+# target to generate assembly for a file
+__/tinyxml2/tinyxml2.cpp.s:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.s
+.PHONY : __/tinyxml2/tinyxml2.cpp.s
+
 ecat_motor.o: ecat_motor.cpp.o
 .PHONY : ecat_motor.o
 
@@ -208,6 +232,9 @@ help:
 	@echo "... lan9252_IO"
 	@echo "... master"
 	@echo "... rebuild_cache"
+	@echo "... __/tinyxml2/tinyxml2.o"
+	@echo "... __/tinyxml2/tinyxml2.i"
+	@echo "... __/tinyxml2/tinyxml2.s"
 	@echo "... ecat_motor.o"
 	@echo "... ecat_motor.i"
 	@echo "... ecat_motor.s"
