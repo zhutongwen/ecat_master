@@ -244,11 +244,11 @@
          </MakeCommands>
       </Target>
       </Build>
-      <Unit filename="/home/z/work/ecat_master/src/etherlab/ecat_motor.cpp">
-      </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/lan9252_IO.c">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/master.cpp">
+      </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/slave.cpp">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/test/vector.cpp">
       </Unit>
@@ -256,9 +256,9 @@
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/tinyxml2/tinyxml_test.cpp">
       </Unit>
-      <Unit filename="/home/z/work/ecat_master/src/etherlab/ecat_motor.h">
-      </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/master.h">
+      </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/slave.h">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/tinyxml2/tinyxml2.h">
       </Unit>

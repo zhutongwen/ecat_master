@@ -11,27 +11,27 @@
 		</rxpdo>
 
 		<rxpdo index="0x1617">
-		  	<offset_vel		index="0x60b1" subindex="0x00" bitlength="32" datatype="s32"/>
+		  	<offset_vel	index="0x60b1" subindex="0x00" bitlength="32" datatype="s32"/>
 		</rxpdo>
 
 		<rxpdo index="0x1618">
-			<offset_tor		index="0x60b2" subindex="0x00" bitlength="16" datatype="s16"/>
+			<offset_tor	index="0x60b2" subindex="0x00" bitlength="16" datatype="s16"/>
 		</rxpdo>
 
 		<txpdo index="0x1a0e">
-			<actual_pos		index="0x6064" subindex="0x00" bitlength="32" datatype="s32"/>
+			<actual_pos	index="0x6064" subindex="0x00" bitlength="32" datatype="s32"/>
 		</txpdo>
 
 		<txpdo index="0x1a11">
-			<actual_vel		index="0x606c" subindex="0x00" bitlength="32" datatype="s32"/><!---->
+			<actual_vel	index="0x606c" subindex="0x00" bitlength="32" datatype="s32"/><!---->
 		</txpdo>
 
 		<txpdo index="0x1a1f">
-			<actual_cur		index="0x6078" subindex="0x00" bitlength="16" datatype="s16"/>
+			<actual_cur	index="0x6078" subindex="0x00" bitlength="16" datatype="s16"/>
 		</txpdo>
 
 		<txpdo index="0x1a13">
-			<actual_tor		index="0x6077" subindex="0x00" bitlength="16" datatype="s16"/>
+			<actual_tor	index="0x6077" subindex="0x00" bitlength="16" datatype="s16"/>
 		</txpdo>
 
 		<txpdo index="0x1a0a">
@@ -41,13 +41,15 @@
 		<txpdo index="0x1a0b">
 			<mode_display	index="0x6061" subindex="0x00" bitlength="8" datatype="u8"/>
 		</txpdo>
-<!---->
-		<sdo>
-			<home_mode		index="0x6098" subindex="0x00" bitlength="8"  datatype="s8"  value="35"/>
-			<home_acc		index="0x609a" subindex="0x00" bitlength="32" datatype="u32" value="200000"/>
-			<home_high_vel	index="0x6099" subindex="0x01" bitlength="32" datatype="u32" value="200000"/>
-			<home_low_vel	index="0x6099" subindex="0x02" bitlength="32" datatype="u32" value="100000"/>
-			<home_offset	index="0x607c" subindex="0x00" bitlength="32" datatype="s32" value="0"/>
-		</sdo>
+<!--mode	="-35"-->
+		<homing			
+			mode	="0" 
+			acc	="200000" 
+			highvel	="200000"
+			lowvel	="100000"
+			offset	="0"/>
 	</elmo>  
+	<slaves>
+		<elmo />
+	</slaves>
 </root>  

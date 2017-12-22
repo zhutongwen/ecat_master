@@ -150,30 +150,6 @@ __/tinyxml2/tinyxml2.cpp.s:
 	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.s
 .PHONY : __/tinyxml2/tinyxml2.cpp.s
 
-ecat_motor.o: ecat_motor.cpp.o
-.PHONY : ecat_motor.o
-
-# target to build an object file
-ecat_motor.cpp.o:
-	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o
-.PHONY : ecat_motor.cpp.o
-
-ecat_motor.i: ecat_motor.cpp.i
-.PHONY : ecat_motor.i
-
-# target to preprocess a source file
-ecat_motor.cpp.i:
-	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.i
-.PHONY : ecat_motor.cpp.i
-
-ecat_motor.s: ecat_motor.cpp.s
-.PHONY : ecat_motor.s
-
-# target to generate assembly for a file
-ecat_motor.cpp.s:
-	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.s
-.PHONY : ecat_motor.cpp.s
-
 lan9252_IO.o: lan9252_IO.c.o
 .PHONY : lan9252_IO.o
 
@@ -222,6 +198,30 @@ master.cpp.s:
 	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/master.cpp.s
 .PHONY : master.cpp.s
 
+slave.o: slave.cpp.o
+.PHONY : slave.o
+
+# target to build an object file
+slave.cpp.o:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/slave.cpp.o
+.PHONY : slave.cpp.o
+
+slave.i: slave.cpp.i
+.PHONY : slave.i
+
+# target to preprocess a source file
+slave.cpp.i:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/slave.cpp.i
+.PHONY : slave.cpp.i
+
+slave.s: slave.cpp.s
+.PHONY : slave.s
+
+# target to generate assembly for a file
+slave.cpp.s:
+	cd /home/z/work/ecat_master/build && $(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/slave.cpp.s
+.PHONY : slave.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -235,15 +235,15 @@ help:
 	@echo "... __/tinyxml2/tinyxml2.o"
 	@echo "... __/tinyxml2/tinyxml2.i"
 	@echo "... __/tinyxml2/tinyxml2.s"
-	@echo "... ecat_motor.o"
-	@echo "... ecat_motor.i"
-	@echo "... ecat_motor.s"
 	@echo "... lan9252_IO.o"
 	@echo "... lan9252_IO.i"
 	@echo "... lan9252_IO.s"
 	@echo "... master.o"
 	@echo "... master.i"
 	@echo "... master.s"
+	@echo "... slave.o"
+	@echo "... slave.i"
+	@echo "... slave.s"
 .PHONY : help
 
 

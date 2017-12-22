@@ -5,8 +5,8 @@ SET(CMAKE_DEPENDS_LANGUAGES
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/z/work/ecat_master/src/tinyxml2/tinyxml2.cpp" "/home/z/work/ecat_master/build/src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o"
-  "/home/z/work/ecat_master/src/etherlab/ecat_motor.cpp" "/home/z/work/ecat_master/build/src/etherlab/CMakeFiles/master.dir/ecat_motor.cpp.o"
   "/home/z/work/ecat_master/src/etherlab/master.cpp" "/home/z/work/ecat_master/build/src/etherlab/CMakeFiles/master.dir/master.cpp.o"
+  "/home/z/work/ecat_master/src/etherlab/slave.cpp" "/home/z/work/ecat_master/build/src/etherlab/CMakeFiles/master.dir/slave.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 

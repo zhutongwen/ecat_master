@@ -28,35 +28,7 @@
  *
  *****************************************************************************/
 
-#include <errno.h>
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/resource.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/mman.h>
-#include <rtdm/rtdm.h>
-#include <native/task.h>
-#include <native/sem.h>
-#include <native/mutex.h>
-#include <native/timer.h>
-#include <rtdk.h>
-#include <pthread.h>
-
-#include "iostream"
-
-#include "ecrt.h"
 #include "master.h"
-
-
-
-
-#include <unistd.h>
-#include <libgen.h>
-#include <vector>
-#include "tinyxml2.h"
 
 RT_TASK my_task;
 
@@ -76,7 +48,6 @@ static ec_domain_state_t domain1_state = {};
 
 static uint8_t *domain1_pd = NULL;
 
-static ec_slave_config_t *sc_dig_out_01 = NULL;
 static ec_slave_config_t *sc_imu_01 = NULL;
 static ec_slave_config_t *sc_lan9252_01 = NULL;
 static ec_slave_config_t *sc_motor_01 = NULL;
@@ -88,8 +59,8 @@ static ec_slave_config_t *sc_motor_01 = NULL;
 // imu
 #define IMU_0_Pos       0, 1
 #define IMU             0xE0000005, 0x26483052
-static off_imu_t    off_imu_0;
-static imu_data_t   imu_data;
+static off_imu_t        off_imu_0;
+static imu_data_t       imu_data;
 
 /*****************************************************************************/
 // motor
@@ -102,8 +73,8 @@ static motor_data_t     motor_data;
 //lan9252
 #define WMLAN9252_IO_POS    0, 2
 #define WMLAN9252_IO        0xE0000002, 0x92521000
-static off_lan9252_io_t    off_lan9252_io;
-static wmlan9252_io_data_t wmlan9252_io_data;
+static off_lan9252_io_t     off_lan9252_io;
+static wmlan9252_io_data_t  wmlan9252_io_data;
 
 // process data
 const static ec_pdo_entry_reg_t domain1_regs[] =
@@ -124,7 +95,6 @@ const static ec_pdo_entry_reg_t domain1_regs[] =
     {IMU_0_Pos,  IMU, 0x6000, 0x07, &off_imu_0.counter, NULL},
     {IMU_0_Pos,  IMU, 0x7011, 0x01, &off_imu_0.led, NULL},
 #endif
-
 
 #ifdef MOTOR_0_Pos
     {MOTOR_0_Pos,  MOTOR, 0x607a, 0x00, &(off_motor_0.target_pos), NULL},
@@ -194,14 +164,14 @@ ec_pdo_entry_info_t imu_rxpdo_entries[] = {
 ec_pdo_info_t imu_rxpdos[] = {
     {0x1601, 1, imu_rxpdo_entries + 0}, /* RxPdo Channel 1 */
 };
-ec_sync_info_t imu_io_syncs[] = {
+ec_sync_info_t imu_syncs[] = {
     {2, EC_DIR_OUTPUT, 1, imu_rxpdos, EC_WD_ENABLE},
     {3, EC_DIR_INPUT,  1, imu_txpdos, EC_WD_ENABLE},
     {0xff}
 };
 
-/*****************************************************************************/
 // motor pdo
+/******************************************************************************
 //RxPdo
 ec_pdo_entry_info_t motor_rxpdo_entries[] =
 {
@@ -247,20 +217,28 @@ ec_sync_info_t motor_syncs[] = {
     {3, EC_DIR_INPUT,  6, motor_txpdos, EC_WD_ENABLE},
     {0xff}
 };
+*/
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
-vector<ec_pdo_entry_info_t> xml_motor_rxpdo_entries;
-vector<ec_pdo_entry_info_t> xml_motor_txpdo_entries;
+vector<vector<ec_pdo_entry_info_t>> xml_motor_rxpdo_entries;
+vector<vector<ec_pdo_entry_info_t>> xml_motor_txpdo_entries;
 
 vector<ec_pdo_info_t> xml_motor_rxpdos;
 vector<ec_pdo_info_t> xml_motor_txpdos;
 
 vector<ec_sync_info_t> xml_motor_syncs;
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-/*****************************************************************************/
-//LoadXML
+
+struct
+{
+    std::int8_t     mode;
+    std::uint32_t   acc;
+    std::uint32_t   highvel;
+    std::uint32_t   lowvel;
+    std::int32_t    offset;
+}xml_motor_homing;
+
+/*****************************************************************************
+* LoadXML
+*****************************************************************************/
 void LoadXML(void)
 {
     XMLDocument doc;
@@ -291,29 +269,23 @@ void LoadXML(void)
                 const XMLAttribute *pdo_index = rxpdo->FindAttribute("index");
                 std::cout << rxpdo->Name() << " " << pdo_index->Name() << ":" << pdo_index->Value() << std::endl;
 
+                xml_motor_rxpdo_entries.push_back({});
+
                 const XMLElement *entry = rxpdo->FirstChildElement();
-                static unsigned int  n_entries = 0;
                 while(entry)
                 {
-                    n_entries ++;
-                    {
-                        xml_motor_rxpdo_entries.push_back(ec_pdo_entry_info_t{
-                                                              (uint16_t)std::strtoul(entry->FindAttribute("index")->Value(),0,16),
-                                                              (uint8_t)std::strtoul(entry->FindAttribute("subindex")->Value(),0,16),
-                                                              (uint8_t)std::strtoul(entry->FindAttribute("bitlength")->Value(),0,10)
-                                                          });
-                    }
+                    xml_motor_rxpdo_entries[xml_motor_rxpdo_entries.size()-1].push_back(ec_pdo_entry_info_t{
+                                                          (uint16_t)std::strtoul(entry->FindAttribute("index")->Value(),0,16),
+                                                          (uint8_t)std::strtoul(entry->FindAttribute("subindex")->Value(),0,16),
+                                                          (uint8_t)std::strtoul(entry->FindAttribute("bitlength")->Value(),0,10)
+                                                      });
                     entry = entry->NextSiblingElement();
                 }
-                static unsigned int last_n_netries = 0;
                 xml_motor_rxpdos.push_back(ec_pdo_info_t{
                                                (uint16_t)std::strtoul((rxpdo->FindAttribute("index")->Value()),0,16),
-                                               (unsigned int)n_entries,
-                                               (ec_pdo_entry_info_t*)(&(xml_motor_rxpdo_entries[last_n_netries]))
+                                               (unsigned int) xml_motor_rxpdo_entries[xml_motor_rxpdo_entries.size()-1].size(),
+                                               (ec_pdo_entry_info_t*)(xml_motor_rxpdo_entries[xml_motor_rxpdo_entries.size()-1].data())
                                            });
-                n_entries = 0;
-                last_n_netries = xml_motor_txpdo_entries.size();
-                std::cout << std::endl;
                 rxpdo = rxpdo->NextSiblingElement("rxpdo");
             }
             xml_motor_syncs.push_back(ec_sync_info_t{
@@ -323,8 +295,6 @@ void LoadXML(void)
                                           &(xml_motor_rxpdos[0]),
                                           EC_WD_ENABLE
                                       });
-            std::cout << dec << xml_motor_rxpdo_entries.size() << std::endl;
-            std::cout << dec << xml_motor_syncs.size() << std::endl;
         }
 #endif
 #if(1)
@@ -335,35 +305,30 @@ void LoadXML(void)
             {
                 const XMLAttribute *pdo_index = txpdo->FindAttribute("index");
                 std::cout << txpdo->Name() << " " << pdo_index->Name() << ":" << pdo_index->Value() << std::endl;
+                xml_motor_txpdo_entries.push_back({});
 
                 const XMLElement *entry = txpdo->FirstChildElement();
-                static unsigned int  n_entries = 0;
                 while(entry)
                 {
-                    n_entries ++;
-                    {
-                        xml_motor_txpdo_entries.push_back(ec_pdo_entry_info_t{
-                                                              (uint16_t)std::strtoul(entry->FindAttribute("index")->Value(),0,16),
-                                                              (uint8_t)std::strtoul(entry->FindAttribute("subindex")->Value(),0,16),
-                                                              (uint8_t)std::strtoul(entry->FindAttribute("bitlength")->Value(),0,10)
-                                                          });
-                        std::cout << "entry.index:" << hex << (xml_motor_txpdo_entries.end()-1)->index << std::endl;
-
-                    }
+                    xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].push_back(ec_pdo_entry_info_t{
+                                                          (uint16_t)std::strtoul(entry->FindAttribute("index")->Value(),0,16),
+                                                          (uint8_t)std::strtoul(entry->FindAttribute("subindex")->Value(),0,16),
+                                                          (uint8_t)std::strtoul(entry->FindAttribute("bitlength")->Value(),0,10)
+                                                      });
+                    std::cout << "entry.index:" << hex << (xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].end()-1)->index << std::endl;
                     entry = entry->NextSiblingElement();
                 }
-                static unsigned int last_n_netries = 0;
                 xml_motor_txpdos.push_back(ec_pdo_info_t{
                                                (uint16_t)std::strtoul((txpdo->FindAttribute("index")->Value()),0,16),
-                                               (unsigned int)n_entries,
-                                               (ec_pdo_entry_info_t*)(&(xml_motor_txpdo_entries[last_n_netries]))
+                                               (unsigned int)xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].size(),
+                                               (ec_pdo_entry_info_t*)(xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].data())
                                            });
-                n_entries = 0;
-                last_n_netries = xml_motor_txpdo_entries.size();
                 std::cout << "###entry.index:" << hex << xml_motor_txpdos[0].entries->index << std::endl;
                 txpdo = txpdo->NextSiblingElement("txpdo");
             }
 
+
+//////////////////////////////////////
             xml_motor_syncs.push_back(ec_sync_info_t{
                                           3,
                                           EC_DIR_INPUT,
@@ -373,10 +338,10 @@ void LoadXML(void)
                                       });
 
             std::cout << "********************" << std::endl;
-                for(int i=0; i<xml_motor_txpdo_entries.size(); i++)
-                {
-                    std::cout << xml_motor_txpdo_entries.at(i).index << std::endl;
-                }
+//                for(int i=0; i<xml_motor_txpdo_entries.size(); i++)
+//                {
+//                    std::cout << xml_motor_txpdo_entries.at(i).index << std::endl;
+//                }
                 std::cout << "--" << std::endl;
                 for(int i=0; i<xml_motor_txpdos.size(); i++)
                 {
@@ -388,51 +353,49 @@ void LoadXML(void)
 
         }
 #endif
-#if(0)
-        XMLElement *sdo = elmo->FirstChildElement("sdo");
-        while(sdo)
+#if(1)
+        const XMLElement *homing = elmo->FirstChildElement("homing");
+        if(homing)
         {
-             std::cout << "sdo:" << std::endl;
-            XMLElement *entry = sdo->FirstChildElement();
-            while(entry)
-            {
-                const XMLAttribute *entry_index = entry->FindAttribute("index");
-                const XMLAttribute *entry_subindex = entry->FindAttribute("subindex");
-                const XMLAttribute *entry_datatype = entry->FindAttribute("datatype");
-                std::cout << "  " << entry->Name() << "  ";
-                std::cout << "  " << entry_index->Name() <<":"<< entry_index->Value() << "  ";
-                std::cout << "  " << entry_subindex->Name() << ":" << entry_subindex->Value() << "  ";
-                std::cout << "  " << entry_datatype->Name() << ":" << entry_datatype->Value() << std::endl;
+            xml_motor_homing.mode = (int8_t)std::strtoul(homing->FindAttribute("mode")->Value(),0,0);
+            xml_motor_homing.acc = (uint32_t)std::strtoul(homing->FindAttribute("acc")->Value(),0,0);
+            xml_motor_homing.highvel = (uint32_t)std::strtoul(homing->FindAttribute("highvel")->Value(),0,0);
+            xml_motor_homing.lowvel = (uint32_t)std::strtoul(homing->FindAttribute("lowvel")->Value(),0,0);
+            xml_motor_homing.offset = (int32_t)std::strtoul(homing->FindAttribute("offset")->Value(),0,0);
 
-                entry = entry->NextSiblingElement();
-            }
-            std::cout << std::endl;
-            sdo = sdo->NextSiblingElement("sdo");
+            cout << "..........." << endl;
+            std::cout << dec << (int16_t)xml_motor_homing.mode << std::endl;
+            std::cout << dec << xml_motor_homing.acc << std::endl;
+            std::cout << dec << xml_motor_homing.highvel << std::endl;
+            std::cout << dec << xml_motor_homing.lowvel << std::endl;
+            std::cout << dec << xml_motor_homing.offset << std::endl;
         }
+
 #endif
     }
 
-    cout << "...................." << endl;
-    for (auto val : xml_motor_syncs)
-    {
-        cout << (uint16_t)val.index << endl;
-        cout << (uint16_t)val.dir << endl;
-        cout << (uint16_t)val.n_pdos << endl;
-        for(int i=0; i<val.n_pdos; i++)
-        {
-            cout << "   " << hex << (uint16_t)((val.pdos+i)->index) << "  ";
-            cout << "   " << hex << (uint16_t)((val.pdos+i)->n_entries) << endl;
-            for(int j=0; j<(val.pdos+i)->n_entries; j++)
-            {
-                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->index) << " ";
-                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->subindex) << " ";
-                cout << "      " << dec << (uint16_t)(((val.pdos+i)->entries+j)->bit_length) << endl;
-            }
-        }
-    }
+//    cout << "...................." << endl;
+//    for (auto val : xml_motor_syncs)
+//    {
+//        cout << (uint16_t)val.index << endl;
+//        cout << (uint16_t)val.dir << endl;
+//        cout << (uint16_t)val.n_pdos << endl;
+//        for(int i=0; i<val.n_pdos; i++)
+//        {
+//            cout << "   " << hex << (uint16_t)((val.pdos+i)->index) << "  ";
+//            cout << "   " << hex << (uint16_t)((val.pdos+i)->n_entries) << endl;
+//            for(int j=0; j<(val.pdos+i)->n_entries; j++)
+//            {
+//                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->index) << " ";
+//                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->subindex) << " ";
+//                cout << "      " << dec << (uint16_t)(((val.pdos+i)->entries+j)->bit_length) << endl;
+//            }
+//        }
+//    }
 
     std::cout << std::endl;
 }
+
 /*****************************************************************************
  * Realtime task
  ****************************************************************************/
@@ -647,13 +610,12 @@ void signal_handler(int sig)
 /****************************************************************************
  * Main function
  ***************************************************************************/
-
 int main(int argc, char *argv[])
 {
     chdir(dirname(argv[0])); //设置当前目录为应用程序所在的目录。
-    int ret;
-
     LoadXML();
+
+//    exit(0);
 
     /* Perform auto-init of rt_print buffers if the task doesn't do so */
     rt_print_auto_init(1);
@@ -680,63 +642,98 @@ int main(int argc, char *argv[])
 
     printf("Creating slave configurations...\n");
 
-
-////////////////////////////////////////////////////////////////////////////////////
-/// IMU
-////////////////////////////////////////////////////////////////////////////////////
-#ifdef IMU_0_Pos
-    sc_imu_01 = ecrt_master_slave_config(master, IMU_0_Pos, IMU);
-    if(!sc_imu_01)
+    #ifdef IMU_0_Pos
     {
-        fprintf(stderr, "Failed to get slave configuration.\n");
-        return -1;
+        sc_imu_01 = ecrt_master_slave_config(master, IMU_0_Pos, IMU);
+        if(!sc_imu_01)
+        {
+            fprintf(stderr, "Failed to get slave configuration.\n");
+            return -1;
+        }
+        if (ecrt_slave_config_pdos(sc_imu_01, EC_END, imu_syncs))
+        {
+            fprintf(stderr, "Failed to configure PDOs.\n");
+            return -1;
+        }
     }
-    if (ecrt_slave_config_pdos(sc_imu_01, EC_END, imu_io_syncs))
+    #endif
+
+    #ifdef MOTOR_0_Pos
     {
-        fprintf(stderr, "Failed to configure PDOs.\n");
-        return -1;
+        sc_motor_01 = ecrt_master_slave_config(master, MOTOR_0_Pos, MOTOR);
+        if(!sc_motor_01)
+        {
+            fprintf(stderr, "Failed to get slave configuration.\n");
+            return -1;
+        }
+        //if (ecrt_slave_config_pdos(sc_motor_01, EC_END, motor_syncs))
+        if (ecrt_slave_config_pdos(sc_motor_01, EC_END, xml_motor_syncs.data()))
+        {
+            fprintf(stderr, "Failed to configure PDOs.\n");
+            return -1;
+        }
+
+#if(1)
+    //homing config
+    {
+        //home mode
+        if(ecrt_slave_config_sdo8(sc_motor_01,0x6098,0x00,xml_motor_homing.mode) < 0)
+        {
+            std::cout << "config homing mode error" << std::endl;
+            return -1;
+        }
+        //home acc
+        if(ecrt_slave_config_sdo32(sc_motor_01,0x6099,0x01,xml_motor_homing.highvel) < 0)
+        {
+            std::cout << "config homing mode error" << std::endl;
+            return -1;
+        }
+        //home high velocity
+        if(ecrt_slave_config_sdo32(sc_motor_01,0x6099,0x02,xml_motor_homing.lowvel) < 0)
+        {
+            std::cout << "config homing acc error" << std::endl;
+            return -1;
+        }
+        //home low velocity
+        if(ecrt_slave_config_sdo32(sc_motor_01,0x609a,0x00,xml_motor_homing.acc) < 0)
+        {
+            std::cout << "config low velocity error" << std::endl;
+            return -1;
+        }
+        //home offset
+        if(ecrt_slave_config_sdo32(sc_motor_01,0x607c,0x00,xml_motor_homing.offset) < 0)
+        {
+            std::cout << "config homing offset error" << std::endl;
+            return -1;
+        }
     }
 #endif
 
-////////////////////////////////////////////////////////////////////////////////////
-/// motor
-////////////////////////////////////////////////////////////////////////////////////
-    sc_motor_01 = ecrt_master_slave_config(master, MOTOR_0_Pos, MOTOR);
-    if(!sc_motor_01)
-    {
-        fprintf(stderr, "Failed to get slave configuration.\n");
-        return -1;
-    }
-//    if (ecrt_slave_config_pdos(sc_motor_01, EC_END, motor_syncs))
-    if (ecrt_slave_config_pdos(sc_motor_01, EC_END, xml_motor_syncs.data()))
-    {
-        fprintf(stderr, "Failed to configure PDOs.\n");
-        return -1;
-    }
-//////////////////////////////////////////////////////////////////////////////////////
-/// lan9252
-//////////////////////////////////////////////////////////////////////////////////////
-#if LAN9252
-    sc_lan9252_01 = ecrt_master_slave_config(master, WMLAN9252_IO_POS, WMLAN9252_IO);
-    if (!sc_lan9252_01)
-    {
-        return -1;
-    }
 
-    if (ecrt_slave_config_pdos(sc_lan9252_01, EC_END, wmlan9252_io_syncs))
-    {
-        fprintf(stderr, "Failed to configure PDOs.\n");
-        return -1;
     }
-#endif
+    #endif
+
+    #if LAN9252
+    {
+        sc_lan9252_01 = ecrt_master_slave_config(master, WMLAN9252_IO_POS, WMLAN9252_IO);
+        if (!sc_lan9252_01)
+        {
+            return -1;
+        }
+
+        if (ecrt_slave_config_pdos(sc_lan9252_01, EC_END, wmlan9252_io_syncs))
+        {
+            fprintf(stderr, "Failed to configure PDOs.\n");
+            return -1;
+        }
+    }
+    #endif
 
     if (ecrt_domain_reg_pdo_entry_list(domain1, domain1_regs)) {
         fprintf(stderr, "PDO entry registration failed!\n");
         return -1;
     }
 
-std::cout << "2" << std::endl;
-exit(0);
     printf("Activating master...\n");
     if (ecrt_master_activate(master)) {
         return -1;
@@ -754,8 +751,9 @@ exit(0);
 
     }
 #endif
-    ret = rt_task_create(&my_task, "my_task", 0, 80, T_FPU);
-    if (ret < 0) {
+    int ret = rt_task_create(&my_task, "my_task", 0, 80, T_FPU);
+    if (ret < 0)
+    {
         fprintf(stderr, "Failed to create task: %s\n", strerror(-ret));
         return -1;
     }
