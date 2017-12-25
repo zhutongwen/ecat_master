@@ -447,7 +447,7 @@ void my_task_proc(void *arg)
     int cycle_counter = 0;
     unsigned int blink = 0;
 
-    rt_task_set_periodic(NULL, TM_NOW, 1000000); // ns
+    rt_task_set_periodic(NULL, TM_NOW, 10000000); // ns
 
     while (run)
     {
@@ -495,30 +495,25 @@ void my_task_proc(void *arg)
         // IMU
         #ifdef IMU_0_Pos
         {
-            static int counter_txrx = 0;
-            if((++counter_txrx) >= 10)
-            {
-                counter_txrx = 0;
-                #if 1
-                    // read process data
-                    imu_data.gx = EC_READ_FLOAT(domain1_pd + off_imu_0.gx);
-                    imu_data.gy = EC_READ_FLOAT(domain1_pd + off_imu_0.gy);
-                    imu_data.gz = EC_READ_FLOAT(domain1_pd + off_imu_0.gz);
-                    imu_data.ax = EC_READ_FLOAT(domain1_pd + off_imu_0.ax);
-                    imu_data.ay = EC_READ_FLOAT(domain1_pd + off_imu_0.ay);
-                    imu_data.az = EC_READ_FLOAT(domain1_pd + off_imu_0.az);
-                    imu_data.counter = EC_READ_U32(domain1_pd + off_imu_0.counter);
-                    // write process data
-                    EC_WRITE_U16(domain1_pd + off_imu_0.led, 0xaa55);
-                #endif
+            #if 1
+                // read process data
+                imu_data.gx = EC_READ_FLOAT(domain1_pd + off_imu_0.gx);
+                imu_data.gy = EC_READ_FLOAT(domain1_pd + off_imu_0.gy);
+                imu_data.gz = EC_READ_FLOAT(domain1_pd + off_imu_0.gz);
+                imu_data.ax = EC_READ_FLOAT(domain1_pd + off_imu_0.ax);
+                imu_data.ay = EC_READ_FLOAT(domain1_pd + off_imu_0.ay);
+                imu_data.az = EC_READ_FLOAT(domain1_pd + off_imu_0.az);
+                imu_data.counter = EC_READ_U32(domain1_pd + off_imu_0.counter);
+                // write process data
+                EC_WRITE_U16(domain1_pd + off_imu_0.led, 0xaa55);
+            #endif
 //                std::cout << "gx:" << imu_data.gx << endl;
 //                std::cout << "gy:" << imu_data.gy << endl;
 //                std::cout << "gz:" << imu_data.gz << endl;
-                std::cout << "ax:" << imu_data.ax << endl;
-                std::cout << "ay:" << imu_data.ay << endl;
-                std::cout << "az:" << imu_data.az << endl;
-                std::cout << "counter:" << dec << imu_data.counter << endl;
-            }
+            std::cout << "ax:" << imu_data.ax << endl;
+            std::cout << "ay:" << imu_data.ay << endl;
+            std::cout << "az:" << imu_data.az << endl;
+            std::cout << "counter:" << dec << imu_data.counter << endl;
         }
         #endif
 
@@ -526,69 +521,101 @@ void my_task_proc(void *arg)
         // motor
         #ifdef MOTOR_0_Pos
         {
-            static int counter_txrx = 0;
-            if((++counter_txrx) >= 10)
+            #if 1
+                // read process data
+                motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor_0.actual_pos);
+                motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor_0.actual_vel);
+
+                motor_data.actual_cur = EC_READ_S16(domain1_pd + off_motor_0.actual_cur);
+                motor_data.actual_tor = EC_READ_S16(domain1_pd + off_motor_0.actual_tor);
+                motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_0.status_word);
+                motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_0.mode_display);
+                // write process data
+                //EC_WRITE_U16(domain1_pd + off_imu_0.led, 0xaa55);
+            #endif
+
+            std::cout << "actual_pos:" << dec << motor_data.actual_pos << endl;
+            std::cout << "actual_vel:" << dec << motor_data.actual_vel << endl;
+            std::cout << "actual_cur:" << dec << motor_data.actual_cur << endl;
+            std::cout << "actual_tor:" << dec << motor_data.actual_tor << endl;
+            std::cout << "status_word: 0x" << hex << motor_data.status_word << endl;
+            //std::cout << "mode_display: 0x" << hex << motor_data.mode_display << endl;
+            uint16_t x = (uint16_t)motor_data.mode_display;
+            std::cout << "mode_display: 0x" << hex << x << endl;
+            std::cout << endl;
+
+//velocity mode
+#if 1
+            //operation mode
+            if(motor_data.mode_display != 0x6)
             {
-                counter_txrx = 0;
-                #if 1
-                    // read process data
-                    motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor_0.actual_pos);
-                    motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor_0.actual_vel);
-
-                    motor_data.actual_cur = EC_READ_S16(domain1_pd + off_motor_0.actual_cur);
-                    motor_data.actual_tor = EC_READ_S16(domain1_pd + off_motor_0.actual_tor);
-                    motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_0.status_word);
-                    motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_0.mode_display);
-                    // write process data
-                    //EC_WRITE_U16(domain1_pd + off_imu_0.led, 0xaa55);
-                #endif
-
-                std::cout << "actual_pos:" << dec << motor_data.actual_pos << endl;
-                std::cout << "actual_vel:" << dec << motor_data.actual_vel << endl;
-                std::cout << "actual_cur:" << dec << motor_data.actual_cur << endl;
-                std::cout << "actual_tor:" << dec << motor_data.actual_tor << endl;
-                std::cout << "status_word: 0x" << hex << motor_data.status_word << endl;
-                //std::cout << "mode_display: 0x" << hex << motor_data.mode_display << endl;
-                uint16_t x = (uint16_t)motor_data.mode_display;
-                std::cout << "mode_display: 0x" << hex << x << endl;
-                std::cout << endl;
-
-                //operation mode
-                if(motor_data.mode_display != 0x3)
-                {
 //                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x01);//position mode
-                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//velocity mode
-//                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//torque mode
-//                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//homing mode
-                }
-                else
+//                EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x03);//velocity mode
+//                    EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x04);//torque mode
+                EC_WRITE_U8(domain1_pd + off_motor_0.mode, 0x06);// mode
+            }
+            else
+            {
+                //motor enable
+                if(motor_data.status_word & 0x0040)// switch on disable
                 {
-                    //motor enable
-                    if(motor_data.status_word & 0x0040)// switch on disable
-                    {
-                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0006); //shut down
-                    }
-                    else if ((motor_data.status_word & 0x006f) == 0x0021) //read to switch on
-                    {
-                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0007); //switch on
-                    }
-                    else if ((motor_data.status_word & 0x006f) == 0x0023) //switch on
-                    {
-                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x000f); //Enable Operation
-                    }
-                    else if ((motor_data.status_word & 0x004f) == 0x0008) //falt
-                    {
-                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0080); //falt restet
-                    }
+                    EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0006); //shut down
+                }
+                else if ((motor_data.status_word & 0x006f) == 0x0021) //read to switch on
+                {
+                    EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0007); //switch on
+                }
+                else if ((motor_data.status_word & 0x006f) == 0x0023) //switch on
+                {
+                    EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x000f); //Enable Operation
+                }
+                else if ((motor_data.status_word & 0x004f) == 0x0008) //falt
+                {
+                    EC_WRITE_U16(domain1_pd + off_motor_0.control_word, 0x0080); //falt restet
+                }
 
-                    //motor move
-                    if((motor_data.status_word & 0x006f) == 0x0027)//operation enable
+//                //motor move
+//                else if((motor_data.status_word & 0x006f) == 0x0027)//operation enable
+//                {
+//                    std::cout << "moveing ......." << endl;
+//                    EC_WRITE_S32(domain1_pd+off_motor_0.target_vel, (int32_t)(655360*imu_data.ax));
+//                }
+            }
+#endif
+
+
+#if 1 //homing mode
+
+            //operation mode
+            if((motor_data.status_word & 0x006f) == 0x0027)//operation enable
+            {
+                static int homing_counter = 0;
+                if((motor_data.status_word & 0x3400) == 0x0400)//homing procedure is interrupted or not started
+                {
+                    std::cout << "homing procedure is interrupted or not started" << endl;
+                    if(homing_counter++ < 10)
                     {
-                        std::cout << "moveing ......." << endl;
-                        EC_WRITE_S32(domain1_pd+off_motor_0.target_vel, (int32_t)(655360*imu_data.ax));
+                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, static_cast<uint16_t>(0x1f));
                     }
+                    else if(homing_counter++ < 10)
+                    {
+                        EC_WRITE_U16(domain1_pd + off_motor_0.control_word, static_cast<uint16_t>(0x0f));
+                    }
+                    else
+                    {
+                        homing_counter = 0;
+                    }
+                }
+                else if((motor_data.status_word & 0x3400) == 0x0000) //in procedure
+                {
+                    std::cout << "in procedure......................................"<< endl;
+                    homing_counter = 0;
+                    EC_WRITE_U16(domain1_pd + off_motor_0.control_word, static_cast<uint16_t>(0x1f));
+                    EC_WRITE_S32(domain1_pd + off_motor_0.target_pos, static_cast<int32_t>(35));
+
                 }
             }
+#endif
         }
         #endif
 
@@ -677,7 +704,7 @@ int main(int argc, char *argv[])
     //homing config
     {
         //home mode
-        if(ecrt_slave_config_sdo8(sc_motor_01,0x6098,0x00,xml_motor_homing.mode) < 0)
+        if(ecrt_slave_config_sdo8(sc_motor_01,0x6098,0x00,35) < 0)
         {
             std::cout << "config homing mode error" << std::endl;
             return -1;

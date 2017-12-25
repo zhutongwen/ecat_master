@@ -43,10 +43,10 @@
 		</txpdo>
 <!--mode	="-35"-->
 		<homing			
-			mode	="0" 
-			acc	="200000" 
+			mode	="-35" 
+			acc	="100000" 
 			highvel	="200000"
-			lowvel	="100000"
+			lowvel	="10000"
 			offset	="0"/>
 	</elmo>  
 	<slaves>
