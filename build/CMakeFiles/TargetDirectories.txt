@@ -1,3 +1,5 @@
+/home/z/work/ecat_master/build/src/etherlab/CMakeFiles/etherlab.dir
+/home/z/work/ecat_master/build/src/etherlab/CMakeFiles/lan9252_402add.dir
 /home/z/work/ecat_master/build/src/etherlab/CMakeFiles/lan9252_IO.dir
 /home/z/work/ecat_master/build/src/etherlab/CMakeFiles/master.dir
 /home/z/work/ecat_master/build/src/tinyxml2/CMakeFiles/tinyxml2_test.dir

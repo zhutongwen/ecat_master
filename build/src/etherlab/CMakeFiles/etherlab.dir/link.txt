@@ -1,0 +1,1 @@
+/usr/bin/g++   -std=c++11 -pthread -g    CMakeFiles/etherlab.dir/etherlab.cpp.o  -o ../../bin/etherlab  -L/usr/xenomai/lib  -L/home/z/work/ecat_master/lib -rdynamic -lnative -lrtdm -lxenomai -lethercat_rtdm -Wl,-rpath,/usr/xenomai/lib:/home/z/work/ecat_master/lib 

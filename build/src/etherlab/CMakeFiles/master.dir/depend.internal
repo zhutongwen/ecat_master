@@ -9,6 +9,7 @@ src/etherlab/CMakeFiles/master.dir/master.cpp.o
  /home/z/work/ecat_master/src/etherlab/ecrt.h
  /home/z/work/ecat_master/src/etherlab/master.cpp
  /home/z/work/ecat_master/src/etherlab/master.h
+ /home/z/work/ecat_master/src/etherlab/motor.h
  /usr/xenomai/include/asm-generic/xenomai/arith.h
  /usr/xenomai/include/asm-generic/xenomai/features.h
  /usr/xenomai/include/asm-generic/xenomai/hal.h
@@ -71,6 +72,10 @@ src/etherlab/CMakeFiles/master.dir/master.cpp.o
  /usr/xenomai/include/rtdk.h
  /usr/xenomai/include/rtdm/rtdm.h
  /usr/xenomai/include/xeno_config.h
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o
+ /home/z/work/ecat_master/src/etherlab/ecrt.h
+ /home/z/work/ecat_master/src/etherlab/motor.cpp
+ /home/z/work/ecat_master/src/etherlab/motor.h
 src/etherlab/CMakeFiles/master.dir/slave.cpp.o
  ../src/tinyxml2/tinyxml2.h
  /home/z/work/ecat_master/src/etherlab/ecrt.h

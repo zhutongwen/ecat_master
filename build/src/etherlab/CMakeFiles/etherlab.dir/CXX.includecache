@@ -50,13 +50,11 @@ stdint.h
 sys/time.h
 -
 
-/home/z/work/ecat_master/src/etherlab/master.cpp
-master.h
-/home/z/work/ecat_master/src/etherlab/master.h
-motor.h
-/home/z/work/ecat_master/src/etherlab/motor.h
+/home/z/work/ecat_master/src/etherlab/etherlab.cpp
+etherlab.h
+/home/z/work/ecat_master/src/etherlab/etherlab.h
 
-/home/z/work/ecat_master/src/etherlab/master.h
+/home/z/work/ecat_master/src/etherlab/etherlab.h
 errno.h
 -
 signal.h
@@ -101,16 +99,6 @@ vector
 -
 tinyxml2.h
 /home/z/work/ecat_master/src/etherlab/tinyxml2.h
-
-/home/z/work/ecat_master/src/etherlab/motor.cpp
-motor.h
-/home/z/work/ecat_master/src/etherlab/motor.h
-
-/home/z/work/ecat_master/src/etherlab/motor.h
-iostream
--
-ecrt.h
-/home/z/work/ecat_master/src/etherlab/ecrt.h
 
 /usr/xenomai/include/asm-generic/xenomai/arith.h
 asm/byteorder.h

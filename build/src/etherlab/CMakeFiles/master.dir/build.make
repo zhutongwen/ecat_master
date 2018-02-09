@@ -95,9 +95,32 @@ src/etherlab/CMakeFiles/master.dir/slave.cpp.o.provides: src/etherlab/CMakeFiles
 
 src/etherlab/CMakeFiles/master.dir/slave.cpp.o.provides.build: src/etherlab/CMakeFiles/master.dir/slave.cpp.o
 
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o: src/etherlab/CMakeFiles/master.dir/flags.make
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o: ../src/etherlab/motor.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/z/work/ecat_master/build/CMakeFiles $(CMAKE_PROGRESS_3)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/etherlab/CMakeFiles/master.dir/motor.cpp.o"
+	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/master.dir/motor.cpp.o -c /home/z/work/ecat_master/src/etherlab/motor.cpp
+
+src/etherlab/CMakeFiles/master.dir/motor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/master.dir/motor.cpp.i"
+	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/z/work/ecat_master/src/etherlab/motor.cpp > CMakeFiles/master.dir/motor.cpp.i
+
+src/etherlab/CMakeFiles/master.dir/motor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/master.dir/motor.cpp.s"
+	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/z/work/ecat_master/src/etherlab/motor.cpp -o CMakeFiles/master.dir/motor.cpp.s
+
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o.requires:
+.PHONY : src/etherlab/CMakeFiles/master.dir/motor.cpp.o.requires
+
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o.provides: src/etherlab/CMakeFiles/master.dir/motor.cpp.o.requires
+	$(MAKE) -f src/etherlab/CMakeFiles/master.dir/build.make src/etherlab/CMakeFiles/master.dir/motor.cpp.o.provides.build
+.PHONY : src/etherlab/CMakeFiles/master.dir/motor.cpp.o.provides
+
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o.provides.build: src/etherlab/CMakeFiles/master.dir/motor.cpp.o
+
 src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o: src/etherlab/CMakeFiles/master.dir/flags.make
 src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o: ../src/tinyxml2/tinyxml2.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/z/work/ecat_master/build/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/z/work/ecat_master/build/CMakeFiles $(CMAKE_PROGRESS_4)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o"
 	cd /home/z/work/ecat_master/build/src/etherlab && /usr/bin/g++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o -c /home/z/work/ecat_master/src/tinyxml2/tinyxml2.cpp
 
@@ -122,6 +145,7 @@ src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o.provides.build: sr
 master_OBJECTS = \
 "CMakeFiles/master.dir/master.cpp.o" \
 "CMakeFiles/master.dir/slave.cpp.o" \
+"CMakeFiles/master.dir/motor.cpp.o" \
 "CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o"
 
 # External object files for target master
@@ -129,6 +153,7 @@ master_EXTERNAL_OBJECTS =
 
 bin/master: src/etherlab/CMakeFiles/master.dir/master.cpp.o
 bin/master: src/etherlab/CMakeFiles/master.dir/slave.cpp.o
+bin/master: src/etherlab/CMakeFiles/master.dir/motor.cpp.o
 bin/master: src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o
 bin/master: src/etherlab/CMakeFiles/master.dir/build.make
 bin/master: src/etherlab/CMakeFiles/master.dir/link.txt
@@ -141,6 +166,7 @@ src/etherlab/CMakeFiles/master.dir/build: bin/master
 
 src/etherlab/CMakeFiles/master.dir/requires: src/etherlab/CMakeFiles/master.dir/master.cpp.o.requires
 src/etherlab/CMakeFiles/master.dir/requires: src/etherlab/CMakeFiles/master.dir/slave.cpp.o.requires
+src/etherlab/CMakeFiles/master.dir/requires: src/etherlab/CMakeFiles/master.dir/motor.cpp.o.requires
 src/etherlab/CMakeFiles/master.dir/requires: src/etherlab/CMakeFiles/master.dir/__/tinyxml2/tinyxml2.cpp.o.requires
 .PHONY : src/etherlab/CMakeFiles/master.dir/requires
 

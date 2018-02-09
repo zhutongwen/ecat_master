@@ -1,7 +1,7 @@
-#include "ecat_motor.h"
-
-EcatMotor::EcatMotor(uint8_t mode)
+#include "motor.h"
+EcatMotor::EcatMotor()
 {
+    motor_state = init;
 //    if((mode == 0x01)   //positon
 //       || (mode == 0x03) //velocity
 //       || (mode == 0x04))//torque
@@ -30,6 +30,27 @@ EcatMotor::EcatMotor(uint8_t mode)
 //        }
 //    }
 //    while()
+
 }
 
+EcatMotor::~EcatMotor()
+{
 
+}
+
+int EcatMotor::Enable(uint8_t *domain1_pd)
+{
+    motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_0.status_word);
+    motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_0.mode_display);
+
+
+    return motor_state;
+}
+
+int EcatMotor::Homing(uint8_t *domain1_pd)
+{
+    motor_data.status_word = EC_READ_U16(domain1_pd + off_motor_0.status_word);
+    motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor_0.mode_display);
+
+
+}

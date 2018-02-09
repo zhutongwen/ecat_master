@@ -43,7 +43,7 @@
 		</txpdo>
 <!--mode	="-35"-->
 		<homing			
-			mode	="-35" 
+			mode	="1" 
 			acc	="100000" 
 			highvel	="200000"
 			lowvel	="10000"

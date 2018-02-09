@@ -8,6 +8,7 @@ src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/tinyxml2/tinyxml2.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/ecrt.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/master.cpp
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/master.h
+src/etherlab/CMakeFiles/master.dir/master.cpp.o: ../src/etherlab/motor.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/asm-generic/xenomai/arith.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/asm-generic/xenomai/features.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/asm-generic/xenomai/hal.h
@@ -70,6 +71,10 @@ src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/nucleus/vf
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/rtdk.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/rtdm/rtdm.h
 src/etherlab/CMakeFiles/master.dir/master.cpp.o: /usr/xenomai/include/xeno_config.h
+
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o: ../src/etherlab/ecrt.h
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o: ../src/etherlab/motor.cpp
+src/etherlab/CMakeFiles/master.dir/motor.cpp.o: ../src/etherlab/motor.h
 
 src/etherlab/CMakeFiles/master.dir/slave.cpp.o: ../src/tinyxml2/tinyxml2.h
 src/etherlab/CMakeFiles/master.dir/slave.cpp.o: ../src/etherlab/ecrt.h

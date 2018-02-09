@@ -48,6 +48,8 @@ SET(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 SET(CMAKE_DEPEND_INFO_FILES
   "src/tinyxml2/CMakeFiles/tinyxml2_test.dir/DependInfo.cmake"
+  "src/etherlab/CMakeFiles/etherlab.dir/DependInfo.cmake"
+  "src/etherlab/CMakeFiles/lan9252_402add.dir/DependInfo.cmake"
   "src/etherlab/CMakeFiles/lan9252_IO.dir/DependInfo.cmake"
   "src/etherlab/CMakeFiles/master.dir/DependInfo.cmake"
   "src/test/CMakeFiles/vector.dir/DependInfo.cmake"

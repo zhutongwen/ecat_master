@@ -112,6 +112,32 @@ tinyxml2_test/fast:
 .PHONY : tinyxml2_test/fast
 
 #=============================================================================
+# Target rules for targets named etherlab
+
+# Build rule for target.
+etherlab: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 etherlab
+.PHONY : etherlab
+
+# fast build rule for target.
+etherlab/fast:
+	$(MAKE) -f src/etherlab/CMakeFiles/etherlab.dir/build.make src/etherlab/CMakeFiles/etherlab.dir/build
+.PHONY : etherlab/fast
+
+#=============================================================================
+# Target rules for targets named lan9252_402add
+
+# Build rule for target.
+lan9252_402add: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 lan9252_402add
+.PHONY : lan9252_402add
+
+# fast build rule for target.
+lan9252_402add/fast:
+	$(MAKE) -f src/etherlab/CMakeFiles/lan9252_402add.dir/build.make src/etherlab/CMakeFiles/lan9252_402add.dir/build
+.PHONY : lan9252_402add/fast
+
+#=============================================================================
 # Target rules for targets named lan9252_IO
 
 # Build rule for target.
@@ -159,6 +185,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... tinyxml2_test"
+	@echo "... etherlab"
+	@echo "... lan9252_402add"
 	@echo "... lan9252_IO"
 	@echo "... master"
 	@echo "... vector"

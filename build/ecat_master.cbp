@@ -81,6 +81,114 @@
             <DistClean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/tinyxml2/Makefile&quot;  VERBOSE=1 clean" />
          </MakeCommands>
       </Target>
+      <Target title="etherlab">
+         <Option output="/home/z/work/ecat_master/build/bin/etherlab" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/z/work/ecat_master/build/bin" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/include/c++/4.8" />
+            <Add directory="/usr/include/c++/4.8/backward" />
+            <Add directory="/usr/include/x86_64-linux-gnu" />
+            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+            <Add directory="/usr/local/include" />
+            <Add directory="/usr/xenomai/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 etherlab" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="etherlab/fast">
+         <Option output="/home/z/work/ecat_master/build/bin/etherlab" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/z/work/ecat_master/build/bin" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/include/c++/4.8" />
+            <Add directory="/usr/include/c++/4.8/backward" />
+            <Add directory="/usr/include/x86_64-linux-gnu" />
+            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+            <Add directory="/usr/local/include" />
+            <Add directory="/usr/xenomai/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 etherlab/fast" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="lan9252_402add">
+         <Option output="/home/z/work/ecat_master/build/bin/lan9252_402add" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/z/work/ecat_master/build/bin" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/include/c++/4.8" />
+            <Add directory="/usr/include/c++/4.8/backward" />
+            <Add directory="/usr/include/x86_64-linux-gnu" />
+            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+            <Add directory="/usr/local/include" />
+            <Add directory="/usr/xenomai/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 lan9252_402add" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
+      <Target title="lan9252_402add/fast">
+         <Option output="/home/z/work/ecat_master/build/bin/lan9252_402add" prefix_auto="0" extension_auto="0" />
+         <Option working_dir="/home/z/work/ecat_master/build/bin" />
+         <Option object_output="./" />
+         <Option type="1" />
+         <Option compiler="gcc" />
+         <Compiler>
+            <Add directory="/home/z/work/ecat_master/include" />
+            <Add directory="/home/z/work/ecat_master/src/ethercat" />
+            <Add directory="/home/z/work/ecat_master/src/tinyxml2" />
+            <Add directory="/usr/include" />
+            <Add directory="/usr/include/c++/4.8" />
+            <Add directory="/usr/include/c++/4.8/backward" />
+            <Add directory="/usr/include/x86_64-linux-gnu" />
+            <Add directory="/usr/include/x86_64-linux-gnu/c++/4.8" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include" />
+            <Add directory="/usr/lib/gcc/x86_64-linux-gnu/4.8/include-fixed" />
+            <Add directory="/usr/local/include" />
+            <Add directory="/usr/xenomai/include" />
+         </Compiler>
+         <MakeCommands>
+            <Build command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 lan9252_402add/fast" />
+            <CompileFile command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 &quot;$file&quot;" />
+            <Clean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+            <DistClean command="/usr/bin/make -f &quot;/home/z/work/ecat_master/build/src/etherlab/Makefile&quot;  VERBOSE=1 clean" />
+         </MakeCommands>
+      </Target>
       <Target title="lan9252_IO">
          <Option output="/home/z/work/ecat_master/build/bin/lan9252_IO" prefix_auto="0" extension_auto="0" />
          <Option working_dir="/home/z/work/ecat_master/build/bin" />
@@ -244,9 +352,15 @@
          </MakeCommands>
       </Target>
       </Build>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/etherlab.cpp">
+      </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/lan9252_402add.c">
+      </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/lan9252_IO.c">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/master.cpp">
+      </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/motor.cpp">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/slave.cpp">
       </Unit>
@@ -256,7 +370,11 @@
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/tinyxml2/tinyxml_test.cpp">
       </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/etherlab.h">
+      </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/master.h">
+      </Unit>
+      <Unit filename="/home/z/work/ecat_master/src/etherlab/motor.h">
       </Unit>
       <Unit filename="/home/z/work/ecat_master/src/etherlab/slave.h">
       </Unit>

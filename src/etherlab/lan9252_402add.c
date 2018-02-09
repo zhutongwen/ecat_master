@@ -76,59 +76,108 @@ static uint8_t *domain1_pd = NULL;
 
 #define WMLAN9252_IO_POS 0, 0
 
-#define WMLAN9252_IO 0xE0000002, 0x92521000
+#define WMLAN9252_IO 0xE0000002, 0x92522010
 
 
-// offsets for PDO entries
-static unsigned int off_analog_data;
-static unsigned int off_keys;
-static unsigned int off_leds;
-
-struct wmlan9252_io_data_struct
+typedef struct
 {
-  uint16_t analog_data;
-  uint8_t key0_1;
-  uint8_t led0_7;
-};
-static struct wmlan9252_io_data_struct wmlan9252_io_data;
+    unsigned int target_pos;
+    unsigned int target_vel;
+    unsigned int control_word;
+    unsigned int mode;
+
+    unsigned int actual_pos;
+    unsigned int actual_vel;
+    unsigned int status_word;
+    unsigned int mode_display;
+
+    unsigned int out_dig;
+    unsigned int in_dig;
+} off_motor_t;
+
+typedef struct
+{
+    uint16_t control_word;
+    int32_t  target_pos;
+    int32_t  target_vel;
+    int32_t  out_dig;
+    uint8_t  mode;
+
+    uint16_t status_word;
+    int32_t  actual_pos;
+    int32_t  actual_vel;
+    int32_t  in_dig;
+    uint8_t  mode_display;
+}motor_data_t;
+
+
+off_motor_t      off_motor;
+motor_data_t     motor_data;
+
+//// offsets for PDO entries
+//static unsigned int off_analog_data;
+//static unsigned int off_keys;
+//static unsigned int off_leds;
+
+//struct wmlan9252_io_data_struct
+//{
+//  uint16_t analog_data;
+//  uint8_t key0_1;
+//  uint8_t led0_7;
+//};
+//static struct wmlan9252_io_data_struct wmlan9252_io_data;
 
 const static ec_pdo_entry_reg_t domain1_regs[] = {
 
 #if 1
-    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x7000, 0x01, &off_leds, NULL},
-    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6000, 0x01, &off_keys, NULL},
-    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6020, 0x01, &off_analog_data, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6040, 0x00, &off_motor.control_word, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x607a, 0x00, &off_motor.target_pos, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x60fe, 0x00, &off_motor.out_dig, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x60ff, 0x00, &off_motor.target_vel, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6060, 0x00, &off_motor.mode, NULL},
+
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6041, 0x00, &off_motor.status_word, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6064, 0x00, &off_motor.actual_pos, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x606c, 0x00, &off_motor.actual_vel, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x60fd, 0x00, &off_motor.in_dig, NULL},
+    {WMLAN9252_IO_POS,  WMLAN9252_IO, 0x6061, 0x00, &off_motor.mode_display, NULL},
 #endif
     {}
 };
 
 /*****************************************************************************/
-//wmlan9252_io
+//wmlan9252_402add
 //TxPdo
-ec_pdo_entry_info_t wmlan9252_io_txpdo_entries[] = {
-    {0x6000, 0x01, 8}, /* key0_2 */
+ec_pdo_entry_info_t wmlan9252_402add_txpdo_entries[] = {
+    {0x6041, 0x00, 16}, /* status word */
+    {0x6064, 0x00, 32}, /* actual position */
+    {0x606C, 0x00, 32}, /* actual velocity */
+    {0x60FD, 0x00, 32}, /* input dig */
+    {0x6061, 0x00, 8}, /* mode of operation display */
     {0, 0, 8}, //reserve
-    {0x6020, 0x01, 16}, /* analog_Input */
 };
 
-ec_pdo_info_t wmlan9252_io_txpdos[] = {
-    {0x1A02, 1, wmlan9252_io_txpdo_entries + 2}, /* TxPdo Channel 2 */
-    {0x1A00, 2, wmlan9252_io_txpdo_entries + 0}, /* TxPdo Channel 1 */
+ec_pdo_info_t wmlan9252_402add_txpdos[] = {
+    {0x1A00, 6, wmlan9252_402add_txpdo_entries + 0}, /* TxPdo Channel 1 */
 };
 
 //RxPdo
-ec_pdo_entry_info_t wmlan9252_io_rxpdo_entries[] = {
-    {0x7000, 0x01, 8}, /* led0_8 */
+ec_pdo_entry_info_t wmlan9252_402add_rxpdo_entries[] = {
+    {0x6040, 0x00, 16}, /* control word */
+    {0x607A, 0x00, 32}, /* target position */
+    {0x60FE, 0x00, 32}, /* out dig */
+    {0x60FF, 0x00, 32}, /* target velocity */
+    {0x6060, 0x00, 8}, /* mode of operation                                                  */
     {0, 0, 8}, //reserve
 };
 
-ec_pdo_info_t wmlan9252_io_rxpdos[] = {
-    {0x1601, 2, wmlan9252_io_rxpdo_entries + 0}, /* RxPdo Channel 1 */
+ec_pdo_info_t wmlan9252_402add_rxpdos[] = {
+    {0x1600, 6, wmlan9252_402add_rxpdo_entries + 0}, /* RxPdo Channel 1 */
 };
 
 ec_sync_info_t wmlan9252_io_syncs[] = {
-    {2, EC_DIR_OUTPUT, 1, wmlan9252_io_rxpdos, EC_WD_ENABLE},
-    {3, EC_DIR_INPUT,  2, wmlan9252_io_txpdos, EC_WD_ENABLE},
+    {2, EC_DIR_OUTPUT, 1, wmlan9252_402add_rxpdos, EC_WD_ENABLE},
+    {3, EC_DIR_INPUT,  1, wmlan9252_402add_txpdos, EC_WD_ENABLE},
     {0xff}
 };
 
@@ -218,20 +267,26 @@ void cyclic_task()
     }
 
 	static int counter_txrx = 0;
-    if((++counter_txrx) >= 10)
+    if((++counter_txrx) >= 100)
 	{
 		counter_txrx = 0;
-		#if 1
-		    // read process data
-			wmlan9252_io_data.analog_data = EC_READ_S16(domain1_pd + off_analog_data);
-			wmlan9252_io_data.key0_1 =  EC_READ_U8(domain1_pd + off_keys);
-		    // write process data
-		    EC_WRITE_U8(domain1_pd + off_leds, ++wmlan9252_io_data.led0_7);
-		#endif
-		 printf("send leds value: 0x%-4x receive ADC value: %-6d receive keys: 0x%-4x   \n\n",
-			    wmlan9252_io_data.led0_7,
-			    wmlan9252_io_data.analog_data,
-				wmlan9252_io_data.key0_1);
+        #if 1
+            // read process data
+            motor_data.actual_pos = EC_READ_S32(domain1_pd + off_motor.actual_pos);
+            motor_data.actual_vel = EC_READ_S32(domain1_pd + off_motor.actual_vel);
+            motor_data.in_dig = EC_READ_S32(domain1_pd + off_motor.in_dig);
+            motor_data.status_word = EC_READ_U16(domain1_pd + off_motor.status_word);
+            motor_data.mode_display = EC_READ_U8(domain1_pd + off_motor.mode_display);
+            // write process data
+            EC_WRITE_S32(domain1_pd + off_motor.out_dig, motor_data.out_dig++);
+
+            printf("actual_pos: 0x%x\n", motor_data.actual_pos);
+            printf("actual_vel: 0x%x\n", motor_data.actual_vel);
+            printf("in_dig: 0x%x\n", motor_data.in_dig);
+            printf("status_word: 0x%x\n", motor_data.status_word);
+            printf("mode_display: 0x%x\n\n", motor_data.mode_display);
+
+         #endif
 	}
 	// send process data
 	ecrt_domain_queue(domain1);
