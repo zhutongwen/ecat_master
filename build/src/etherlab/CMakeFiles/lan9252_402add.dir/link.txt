@@ -1,1 +1,0 @@
-/usr/bin/gcc  -g    CMakeFiles/lan9252_402add.dir/lan9252_402add.c.o  -o ../../bin/lan9252_402add  -L/usr/xenomai/lib  -L/home/z/work/ecat_master/lib -rdynamic -lnative -lrtdm -lxenomai -lethercat_rtdm -Wl,-rpath,/usr/xenomai/lib:/home/z/work/ecat_master/lib 
