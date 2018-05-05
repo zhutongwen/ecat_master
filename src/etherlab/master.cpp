@@ -58,7 +58,7 @@ static ec_slave_config_t *sc_motor_01 = NULL;
 /****************************************************************************/
 /*****************************************************************************/
 // imu
-//#define IMU_0_Pos       0, 1
+//#define IMU_0_Pos       0, 0
 //#define IMU             0xE0000005, 0x26483052
 //static off_imu_t        off_imu_0;
 //static imu_data_t       imu_data;
@@ -70,10 +70,10 @@ EcatMotor motor_01;
 
 /*****************************************************************************/
 //lan9252
-#define WMLAN9252_IO_POS    0, 0
-#define WMLAN9252_IO        0xE0000002, 0x92521000
-static off_lan9252_io_t     off_lan9252_io;
-static wmlan9252_io_data_t  wmlan9252_io_data;
+//#define WMLAN9252_IO_POS    0, 0
+//#define WMLAN9252_IO        0xE0000002, 0x92521000
+//static off_lan9252_io_t     off_lan9252_io;
+//static wmlan9252_io_data_t  wmlan9252_io_data;
 
 // process data
 const static ec_pdo_entry_reg_t domain1_regs[] =
@@ -169,187 +169,9 @@ ec_sync_info_t imu_syncs[] = {
     {0xff}
 };
 
-vector<vector<ec_pdo_entry_info_t>> xml_motor_rxpdo_entries;
-vector<vector<ec_pdo_entry_info_t>> xml_motor_txpdo_entries;
-
-vector<ec_pdo_info_t> xml_motor_rxpdos;
-vector<ec_pdo_info_t> xml_motor_txpdos;
-
-vector<ec_sync_info_t> xml_motor_syncs;
-
-struct
-{
-    std::int8_t     mode;
-    std::uint32_t   acc;
-    std::uint32_t   highvel;
-    std::uint32_t   lowvel;
-    std::int32_t    offset;
-}xml_motor_homing;
-
-/*****************************************************************************
-* LoadXML
-*****************************************************************************/
-void LoadXML(void)
-{
-    XMLDocument doc;
-    if(doc.LoadFile("../../resource/test.xml") != XML_SUCCESS)
-    {
-       std::cout << "load text.xml file fault: " << doc.ErrorName() << std::endl;
-       exit(1);
-    }
-
-    const XMLDocument& cdoc = doc;
-
-    const XMLElement *root=cdoc.RootElement();
-    const XMLElement *elmo = root->FirstChildElement("elmo");
-    if(elmo)
-    {
-        std::cout << std::endl << elmo->Name() << " ";
-        const XMLAttribute *vendor_id = elmo->FindAttribute("vender_id");
-        const XMLAttribute *product_code = elmo->FindAttribute("product_code");
-        std::cout << vendor_id->Name() << ":" << vendor_id->Value() << " ";
-        std::cout << product_code->Name() << ":" << product_code->Value() << std::endl;
-
-#if 1
-        const XMLElement *rxpdo = elmo->FirstChildElement("rxpdo");
-        if(rxpdo)
-        {
-            while(rxpdo)
-            {
-                const XMLAttribute *pdo_index = rxpdo->FindAttribute("index");
-                std::cout << rxpdo->Name() << " " << pdo_index->Name() << ":" << pdo_index->Value() << std::endl;
-
-                xml_motor_rxpdo_entries.push_back({});
-
-                const XMLElement *entry = rxpdo->FirstChildElement();
-                while(entry)
-                {
-                    xml_motor_rxpdo_entries[xml_motor_rxpdo_entries.size()-1].push_back(ec_pdo_entry_info_t{
-                                                          (uint16_t)std::strtoul(entry->FindAttribute("index")->Value(),0,16),
-                                                          (uint8_t)std::strtoul(entry->FindAttribute("subindex")->Value(),0,16),
-                                                          (uint8_t)std::strtoul(entry->FindAttribute("bitlength")->Value(),0,10)
-                                                      });
-                    entry = entry->NextSiblingElement();
-                }
-                xml_motor_rxpdos.push_back(ec_pdo_info_t{
-                                               (uint16_t)std::strtoul((rxpdo->FindAttribute("index")->Value()),0,16),
-                                               (unsigned int) xml_motor_rxpdo_entries[xml_motor_rxpdo_entries.size()-1].size(),
-                                               (ec_pdo_entry_info_t*)(xml_motor_rxpdo_entries[xml_motor_rxpdo_entries.size()-1].data())
-                                           });
-                rxpdo = rxpdo->NextSiblingElement("rxpdo");
-            }
-            xml_motor_syncs.push_back(ec_sync_info_t{
-                                          2,
-                                          EC_DIR_OUTPUT,
-                                          (unsigned int)xml_motor_rxpdos.size(),
-                                          &(xml_motor_rxpdos[0]),
-                                          EC_WD_ENABLE
-                                      });
-        }
-#endif
-#if(1)
-        const XMLElement *txpdo = elmo->FirstChildElement("txpdo");
-        if(txpdo)
-        {
-            while(txpdo)
-            {
-                const XMLAttribute *pdo_index = txpdo->FindAttribute("index");
-                std::cout << txpdo->Name() << " " << pdo_index->Name() << ":" << pdo_index->Value() << std::endl;
-                xml_motor_txpdo_entries.push_back({});
-
-                const XMLElement *entry = txpdo->FirstChildElement();
-                while(entry)
-                {
-                    xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].push_back(ec_pdo_entry_info_t{
-                                                          (uint16_t)std::strtoul(entry->FindAttribute("index")->Value(),0,16),
-                                                          (uint8_t)std::strtoul(entry->FindAttribute("subindex")->Value(),0,16),
-                                                          (uint8_t)std::strtoul(entry->FindAttribute("bitlength")->Value(),0,10)
-                                                      });
-                    std::cout << "entry.index:" << hex << (xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].end()-1)->index << std::endl;
-                    entry = entry->NextSiblingElement();
-                }
-                xml_motor_txpdos.push_back(ec_pdo_info_t{
-                                               (uint16_t)std::strtoul((txpdo->FindAttribute("index")->Value()),0,16),
-                                               (unsigned int)xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].size(),
-                                               (ec_pdo_entry_info_t*)(xml_motor_txpdo_entries[xml_motor_txpdo_entries.size()-1].data())
-                                           });
-                std::cout << "###entry.index:" << hex << xml_motor_txpdos[0].entries->index << std::endl;
-                txpdo = txpdo->NextSiblingElement("txpdo");
-            }
-
-
-//////////////////////////////////////
-            xml_motor_syncs.push_back(ec_sync_info_t{
-                                          3,
-                                          EC_DIR_INPUT,
-                                          (unsigned int)xml_motor_txpdos.size(),
-                                          xml_motor_txpdos.data(),
-                                          EC_WD_ENABLE
-                                      });
-
-            std::cout << "********************" << std::endl;
-//                for(int i=0; i<xml_motor_txpdo_entries.size(); i++)
-//                {
-//                    std::cout << xml_motor_txpdo_entries.at(i).index << std::endl;
-//                }
-                std::cout << "--" << std::endl;
-                for(int i=0; i<xml_motor_txpdos.size(); i++)
-                {
-                    std::cout << xml_motor_txpdos.at(i).entries->index << std::endl;
-                }
-            std::cout << "********************" << std::endl;
-
-            xml_motor_syncs.push_back(ec_sync_info_t{0xff}); //(0xff) end of the list
-
-        }
-#endif
-#if(1)
-        const XMLElement *homing = elmo->FirstChildElement("homing");
-        if(homing)
-        {
-            xml_motor_homing.mode = (int8_t)std::strtoul(homing->FindAttribute("mode")->Value(),0,0);
-            xml_motor_homing.acc = (uint32_t)std::strtoul(homing->FindAttribute("acc")->Value(),0,0);
-            xml_motor_homing.highvel = (uint32_t)std::strtoul(homing->FindAttribute("highvel")->Value(),0,0);
-            xml_motor_homing.lowvel = (uint32_t)std::strtoul(homing->FindAttribute("lowvel")->Value(),0,0);
-            xml_motor_homing.offset = (int32_t)std::strtoul(homing->FindAttribute("offset")->Value(),0,0);
-
-            cout << "..........." << endl;
-            std::cout << dec << (int16_t)xml_motor_homing.mode << std::endl;
-            std::cout << dec << xml_motor_homing.acc << std::endl;
-            std::cout << dec << xml_motor_homing.highvel << std::endl;
-            std::cout << dec << xml_motor_homing.lowvel << std::endl;
-            std::cout << dec << xml_motor_homing.offset << std::endl;
-        }
-
-#endif
-    }
-
-//    cout << "...................." << endl;
-//    for (auto val : xml_motor_syncs)
-//    {
-//        cout << (uint16_t)val.index << endl;
-//        cout << (uint16_t)val.dir << endl;
-//        cout << (uint16_t)val.n_pdos << endl;
-//        for(int i=0; i<val.n_pdos; i++)
-//        {
-//            cout << "   " << hex << (uint16_t)((val.pdos+i)->index) << "  ";
-//            cout << "   " << hex << (uint16_t)((val.pdos+i)->n_entries) << endl;
-//            for(int j=0; j<(val.pdos+i)->n_entries; j++)
-//            {
-//                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->index) << " ";
-//                cout << "      " << hex << (uint16_t)(((val.pdos+i)->entries+j)->subindex) << " ";
-//                cout << "      " << dec << (uint16_t)(((val.pdos+i)->entries+j)->bit_length) << endl;
-//            }
-//        }
-//    }
-
-    std::cout << std::endl;
-}
-
 /*****************************************************************************
  * Realtime task
  ****************************************************************************/
-
 void rt_check_domain_state(void)
 {
     ec_domain_state_t ds = {};
@@ -368,7 +190,6 @@ void rt_check_domain_state(void)
 }
 
 /****************************************************************************/
-
 void rt_check_master_state(void)
 {
     ec_master_state_t ms;
@@ -391,7 +212,6 @@ void rt_check_master_state(void)
 }
 
 /****************************************************************************/
-
 void my_task_proc(void *arg)
 {
     int cycle_counter = 0;
@@ -411,13 +231,11 @@ void my_task_proc(void *arg)
 
         rt_check_domain_state();
 
-        if (!(cycle_counter % 1000)) {
+//        if (!(cycle_counter % 1000))
+        {
             rt_check_master_state();
         }
 
-        if (!(cycle_counter % 200)) {
-            blink = !blink;
-        }
         /****************************************************************************/
         // lan9252
         #ifdef WMLAN9252_IO_POS
@@ -493,48 +311,89 @@ void my_task_proc(void *arg)
             }
             #endif
 
+            int motor_state = motor_01.motor_data.status_word & 0x006f;
+
+            if (motor_state != 0x0027)
+            {
+//				switch (mode)
+                {
+//				case Mode::POSITION:
+                    //targetposition should be equal to actualposition
+//                    readEntry(PdoEntry::ACTUALPOSITION, 0x00, actual_position_);
+//                    writeEntry(PdoEntry::TARGETPOSITION, 0x00, actual_position_);
+//					break;
+//				case Mode::VELOCITY:
+                    //velocity loop to set velocity of 0
+//                    writeEntry(PdoEntry::TARGETVELOCITY, 0x00, static_cast<std::int32_t>(0));
+//                    std::cout << "--------target_vel = 0 --------" << std::endl;
+//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_vel, static_cast<std::int32_t>(0));
+//					break;
+//				case Mode::TORQUE:
+//                    writeEntry(PdoEntry::TARGETTORQUE, 0x00, static_cast<std::int16_t>(0));
+//                    writeEntry(PdoEntry::MAXTORQUE, 0x00, static_cast<std::int16_t>(1500));
+//					break;
+                }
+            }
+
             #if 1
-            if(motor_01.motor_state != motor_01.homed)
+            if(motor_01.motor_state != motor_01.enabled)
             {
                 if(motor_01.motor_data.mode_display != 0x06)
                 {
+                    std::cout << "--------mode_display--------" << std::endl;
     //                motor_state = init;
-    //                EC_WRITE_U8(domain1_pd +motor_01.off_motor_0.mode, 0x01);//position mode
+//                    EC_WRITE_U8(domain1_pd +motor_01.off_motor_0.mode, 0x00);//init
+//                    EC_WRITE_U8(domain1_pd +motor_01.off_motor_0.mode, 0x01);//position mode
 //                    EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x03);//velocity mode
     //                EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x04);//torque mode
                     EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x06);//homing  mode
+//                     EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x09);//csv
                 }
                 else
                 {
                     //motor enable
-                    if(motor_01.motor_data.status_word & 0x0040)// switch on disable
+                    if(motor_state == 0x0040 || motor_state == 0x0600)// switch on disable
                     {
     //                    motor_state = enable_ing;
                         EC_WRITE_U16(domain1_pd + motor_01.off_motor_0.control_word, 0x0006); //shut down
+                        std::cout << "--------shut down--------" << std::endl;
                     }
-                    else if ((motor_01.motor_data.status_word & 0x006f) == 0x0021) //read to switch on
+                    else if (motor_state == 0x0021) //read to switch on
                     {
     //                    motor_state = enable_ing;
                         EC_WRITE_U16(domain1_pd + motor_01.off_motor_0.control_word, 0x0007); //switch on
+                        std::cout << "-------switch on---------" << std::endl;
                     }
-                    else if ((motor_01.motor_data.status_word & 0x006f) == 0x0023) //switch on
+                    else if (motor_state == 0x0023) //switch on
                     {
     //                    motor_state = enable_ing;
                         EC_WRITE_U16(domain1_pd + motor_01.off_motor_0.control_word, 0x000f); //Enable Operation
+                        std::cout << "-------Enable Operation---------" << std::endl;
                     }
-                    else if ((motor_01.motor_data.status_word & 0x004f) == 0x0008) //falt
+                    else if(motor_state == 0x0027)//operation enable
                     {
+                        //successfull, but still need to wait for 10 more cycles to make it stable
+                        static int enable_period_ = 0;
+                        if(++enable_period_ > 10)
+                        {
+                            enable_period_ = 0;
+                            motor_01.motor_state = motor_01.enabled;
+                            std::cout << "motor has been enabled" << std::endl;
+                            std::cout << "--------operation enable--------" << std::endl;
+                        }
+
+                    }
+                    else //falt
+                    {
+                        std::cout << "---------falt restet-------" << std::endl;
                         motor_01.motor_state = motor_01.enable_ing;
                         EC_WRITE_U16(domain1_pd + motor_01.off_motor_0.control_word, 0x0080); //falt restet
-                    }
-                    else if((motor_01.motor_data.status_word & 0x006f) == 0x0027)//operation enable
-                    {
-                        motor_01.motor_state = motor_01.enabled;
-                        std::cout << "motor has been enabled" << std::endl;
+
                     }
                 }
 
                 //homing
+                #if 0
                 if((motor_01.motor_data.status_word & 0x006f) != 0x0027)//motor not enabled
                 {
                     std::cout << "homing error, please enable motor first!" << std::endl;
@@ -561,40 +420,43 @@ void my_task_proc(void *arg)
                         motor_01.motor_state =motor_01.homed;
                     }
                 }
+                #endif
             }
 
 
             //position mode
 //            if(motor_01.motor_state == motor_01.homed)
+//            if(motor_01.motor_state == motor_01.enabled)
 //            {
 //                std::cout << "running in position mode"<< std::endl;
-//                if(motor_01.motor_data.mode_display != 0x01)
+//                if(motor_01.motor_data.mode_display != 0x08)
 //                {
-//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_pos, 0);
-//                    EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x01);//position mode
+//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_pos, static_cast<int32_t>(0));
+//                    EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x08);//position mode
 //                }
 //                else
 //                {
 //                    static int32_t s32position = 0;
-//                    s32position +=100;
-//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_pos, s32position);
+//                    s32position +=10;
+//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_pos, static_cast<int32_t>(s32position));
 //                }
 //            }
 
             //velocity mode
-            if(motor_01.motor_state == motor_01.homed)
+//            if(motor_01.motor_state == motor_01.homed)
+            if(motor_01.motor_state == motor_01.enabled)
             {
-                if(motor_01.motor_data.mode_display != 0x03)
+                if(motor_01.motor_data.mode_display != 0x09)
                 {
                     EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_vel, 0);
-                    EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x03);//position mode
+                    EC_WRITE_U8(domain1_pd + motor_01.off_motor_0.mode, 0x09);//position mode
                 }
                 else
                 {
                     static int32_t s32position = 0;
                     s32position =10000;
-//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_vel, 655360*imu_data.ax);
-                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_vel, 10*wmlan9252_io_data.analog_data);
+//                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_vel, 655350*imu_data.ay);
+                    EC_WRITE_S32(domain1_pd + motor_01.off_motor_0.target_vel, 65535);
                     std::cout << "running in velocity mode"<< std::endl;
                 }
             }
@@ -602,6 +464,11 @@ void my_task_proc(void *arg)
             #endif
         }
         #endif
+
+        //distribute clock
+        ecrt_master_application_time(master, rt_timer_read());
+        ecrt_master_sync_reference_clock(master);
+        ecrt_master_sync_slave_clocks(master);
 
         // send process data
         ecrt_domain_queue(domain1);
@@ -623,8 +490,8 @@ void signal_handler(int sig)
  ***************************************************************************/
 int main(int argc, char *argv[])
 {
-    chdir(dirname(argv[0])); //设置当前目录为应用程序所在的目录。
-    LoadXML();
+//    chdir(dirname(argv[0])); //设置当前目录为应用程序所在的目录。
+//    LoadXML();
 
 
 //    exit(0);
@@ -678,79 +545,86 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Failed to get slave configuration.\n");
             return -1;
         }
-        //if (ecrt_slave_config_pdos(sc_motor_01, EC_END, motor_syncs))
-        if (ecrt_slave_config_pdos(sc_motor_01, EC_END, xml_motor_syncs.data()))
-        {
-            fprintf(stderr, "Failed to configure PDOs.\n");
-            return -1;
-        }
 
-#if(1)
-    //homing config
-    {
-        //home mode
-        if(ecrt_slave_config_sdo8(sc_motor_01,0x6098,0x00,xml_motor_homing.mode) < 0)
+
+
+        #if(1)
         {
-            std::cout << "config homing mode error" << std::endl;
-            return -1;
-        }
-        //home acc
-        if(ecrt_slave_config_sdo32(sc_motor_01,0x6099,0x01,xml_motor_homing.highvel) < 0)
-        {
-            std::cout << "config homing mode error" << std::endl;
-            return -1;
-        }
-        //home high velocity
-        if(ecrt_slave_config_sdo32(sc_motor_01,0x6099,0x02,xml_motor_homing.lowvel) < 0)
-        {
-            std::cout << "config homing acc error" << std::endl;
-            return -1;
-        }
-        //home low velocity
-        if(ecrt_slave_config_sdo32(sc_motor_01,0x609a,0x00,xml_motor_homing.acc) < 0)
-        {
-            std::cout << "config low velocity error" << std::endl;
-            return -1;
-        }
-        //home offset
-        if(ecrt_slave_config_sdo32(sc_motor_01,0x607c,0x00,xml_motor_homing.offset) < 0)
-        {
-            std::cout << "config homing offset error" << std::endl;
-            return -1;
-        }
-    }
-        #if 0
-        //position mode config
-        {
-            //profile velocity
-            if(ecrt_slave_config_sdo32(sc_motor_01,0x6081,0x00,10000) < 0)
+            //homing config
             {
-                std::cout << "config homing mode error" << std::endl;
+                //home mode
+                if(ecrt_slave_config_sdo8(sc_motor_01,0x6098,0x00,35) < 0)
+                {
+                    std::cout << "config homing mode error" << std::endl;
+                    return -1;
+                }
+                //home acc
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x6099,0x01,200000) < 0)
+                {
+                    std::cout << "config homing mode error" << std::endl;
+                    return -1;
+                }
+                //home high velocity
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x6099,0x02,10000) < 0)
+                {
+                    std::cout << "config homing acc error" << std::endl;
+                    return -1;
+                }
+                //home low velocity
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x609a,0x00,100000) < 0)
+                {
+                    std::cout << "config low velocity error" << std::endl;
+                    return -1;
+                }
+                //home offset
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x607c,0x00,0) < 0)
+                {
+                    std::cout << "config homing offset error" << std::endl;
+                    return -1;
+                }
+            }
+            #if 0
+            //position mode config
+            {
+                //profile velocity
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x6081,0x00,10000) < 0)
+                {
+                    std::cout << "config homing mode error" << std::endl;
+                    return -1;
+                }
+                //end velocity
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x6082,0x00,10000) < 0)
+                {
+                    std::cout << "config homing mode error" << std::endl;
+                    return -1;
+                }
+                //profile acceleration
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x6083,0x00,10000) < 0)
+                {
+                    std::cout << "config homing mode error" << std::endl;
+                    return -1;
+                }
+                //profile deceleration
+                if(ecrt_slave_config_sdo32(sc_motor_01,0x6084,0x00,10000) < 0)
+                {
+                    std::cout << "config homing mode error" << std::endl;
+                    return -1;
+                }
+            }
+            #endif
+
+
+
+            if (ecrt_slave_config_pdos(sc_motor_01, EC_END, motor_01.motor_syncs))
+    //        if (ecrt_slave_config_pdos(sc_motor_01, EC_END, xml_motor_syncs.data()))
+            {
+                fprintf(stderr, "Failed to configure PDOs.\n");
                 return -1;
             }
-            //end velocity
-            if(ecrt_slave_config_sdo32(sc_motor_01,0x6082,0x00,10000) < 0)
-            {
-                std::cout << "config homing mode error" << std::endl;
-                return -1;
-            }
-            //profile acceleration
-            if(ecrt_slave_config_sdo32(sc_motor_01,0x6083,0x00,10000) < 0)
-            {
-                std::cout << "config homing mode error" << std::endl;
-                return -1;
-            }
-            //profile deceleration
-            if(ecrt_slave_config_sdo32(sc_motor_01,0x6084,0x00,10000) < 0)
-            {
-                std::cout << "config homing mode error" << std::endl;
-                return -1;
-            }
+
+
         }
         #endif
-#endif
-
-
     }
     #endif
 
@@ -768,17 +642,24 @@ int main(int argc, char *argv[])
             return -1;
         }
     }
-    #endif
+#endif
+
+
 
     if (ecrt_domain_reg_pdo_entry_list(domain1, domain1_regs)) {
         fprintf(stderr, "PDO entry registration failed!\n");
         return -1;
     }
 
+ecrt_slave_config_dc(sc_motor_01,0x0300, 1000000, 440000, 0, 0);////////////////////////////////////////////////////
+  //ecrt_slave_config_dc(slave_config_, distributed_clock_, 1000000, 4400000, 0, 0);
+
     printf("Activating master...\n");
     if (ecrt_master_activate(master)) {
         return -1;
     }
+
+
 
     if (!(domain1_pd = ecrt_domain_data(domain1))) {
         fprintf(stderr, "Failed to get domain data pointer.\n");
@@ -792,7 +673,7 @@ int main(int argc, char *argv[])
 
     }
 #endif
-    int ret = rt_task_create(&my_task, "my_task", 0, 80, T_FPU);
+    int ret = rt_task_create(&my_task, "my_task", 0, 99, T_FPU);
     if (ret < 0)
     {
         fprintf(stderr, "Failed to create task: %s\n", strerror(-ret));

@@ -55,15 +55,15 @@ public:
     }motor_data_t;
 
 
-    #define MOTOR_0_Pos     0, 1
+    #define MOTOR_0_Pos     0, 0
     #define MOTOR           0x0000009a, 0x00030924
     off_motor_t      off_motor_0;
     motor_data_t     motor_data;
 
     // motor pdo
-    /******************************************************************************
+    /*******************************************************************************/
     //RxPdo
-    ec_pdo_entry_info_t motor_rxpdo_entries[] =
+    ec_pdo_entry_info_t motor_rxpdo_entries[8] =
     {
         {0x607a, 0x00, 32}, //pos_target_value  s32
         {0x60ff, 0x00, 32}, //vel_target_value  s32
@@ -75,14 +75,14 @@ public:
         {0x60b1, 0x00, 32}, //velocity offset   s32
         {0x60b2, 0x00, 16}, //torque_offset     s16
     };
-    ec_pdo_info_t motor_rxpdos[] =
+    ec_pdo_info_t motor_rxpdos[3] =
     {
         {0x1605, 6, motor_rxpdo_entries + 0},
         {0x1617, 1, motor_rxpdo_entries + 6},
         {0x1618, 1, motor_rxpdo_entries + 7},
     };
     // TxPdo
-    ec_pdo_entry_info_t motor_txpdo_entries[] =
+    ec_pdo_entry_info_t motor_txpdo_entries[6] =
     {
         {0x6064, 0x00, 32}, //pos_actual_value  s32
         {0x606c, 0x00, 32}, //vel_actual_value  s32
@@ -92,7 +92,7 @@ public:
         {0x6041, 0x00, 16}, //status_word       u16
         {0x6061, 0x00, 8},  //mode_display    u8
     };
-    ec_pdo_info_t motor_txpdos[] =
+    ec_pdo_info_t motor_txpdos[6] =
     {
         {0x1a0e, 1, motor_txpdo_entries + 0}, //pos_actual_value  s32
         {0x1a11, 1, motor_txpdo_entries + 1}, //vel_actual_value  s32
@@ -102,12 +102,12 @@ public:
         {0x1a0a, 1, motor_txpdo_entries + 4}, //status_word       u16
         {0x1a0b, 1, motor_txpdo_entries + 5}, //module_display    u8
     };
-    ec_sync_info_t motor_syncs[] = {
+    ec_sync_info_t motor_syncs[3] = {
         {2, EC_DIR_OUTPUT, 3, motor_rxpdos, EC_WD_ENABLE},
         {3, EC_DIR_INPUT,  6, motor_txpdos, EC_WD_ENABLE},
         {0xff}
     };
-    */
+
 
     EcatMotor();
     ~EcatMotor();
@@ -135,7 +135,7 @@ public:
         position_mode = 5,
         velocity_mode = 6,
         turque_mode = 7
-    }motor_state;
+    }motor_state{init};
 
 private:
 
