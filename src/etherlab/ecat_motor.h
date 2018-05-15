@@ -1,7 +1,5 @@
-
-
-#ifndef ECAT_MOTOR_H
-#define ECAT_MOTOR_H
+#ifndef ECAT_MOTOR_H_
+#define ECAT_MOTOR_H_
 
 #include <iostream>
 #include "ecrt.h"
@@ -10,11 +8,21 @@
 class EcatMotor
 {
 public:
-
-
     //mode: 0x01 position mode
     //      0x03 velocity mode
     //      0x04 torque mode
+
+    typedef enum
+    {
+        MODE_PROFILE_POSITION = 1,
+        MODE_PROFILE_VELOCITY = 3,
+        MODE_PROFILE_TORQUE = 4,
+        MODE_HOMING = 6,
+        MODE_INTERPOLATED_POSITION = 7,
+        MODE_CSP = 8,
+        MODE_CSV = 9,
+        MODE_CST = 10,
+    }mode_t;
 
     typedef struct
     {
@@ -33,7 +41,7 @@ public:
         unsigned int actual_tor;
         unsigned int status_word;
         unsigned int mode_display;
-    } off_motor_t;
+    } offset_t;
 
     typedef struct
     {
@@ -42,7 +50,7 @@ public:
         int16_t  target_tor;
         int16_t  max_tor;
         uint16_t control_word;
-        uint8_t  mode;
+        mode_t  mode;
         int32_t  vel_offset;
         int16_t  tor_offset;
 
@@ -51,14 +59,12 @@ public:
         int16_t  actual_cur;
         int16_t  actual_tor;
         uint16_t status_word;
-        uint8_t  mode_display;
-    }motor_data_t;
+        int8_t  mode_display;
+    }data_t;
 
+    offset_t            offset;
+    data_t              data;
 
-    #define MOTOR_0_Pos     0, 0
-    #define MOTOR           0x0000009a, 0x00030924
-    off_motor_t      off_motor_0;
-    motor_data_t     motor_data;
 
     // motor pdo
     /*******************************************************************************/
@@ -102,43 +108,62 @@ public:
         {0x1a0a, 1, motor_txpdo_entries + 4}, //status_word       u16
         {0x1a0b, 1, motor_txpdo_entries + 5}, //module_display    u8
     };
-    ec_sync_info_t motor_syncs[3] = {
+    ec_sync_info_t syncs[3] = {
         {2, EC_DIR_OUTPUT, 3, motor_rxpdos, EC_WD_ENABLE},
         {3, EC_DIR_INPUT,  6, motor_txpdos, EC_WD_ENABLE},
         {0xff}
     };
 
-
     EcatMotor();
     ~EcatMotor();
+
+    int Display(uint8_t *domain1_pd_);
+    int Init(ec_master_t *master_,
+             uint16_t alias_, /**< Slave alias. */
+             uint16_t position_/**< Slave position. */);
+    int Enable(uint8_t *domain1_pd_);
+    int Homing(uint8_t *domain1_pd_);
+    int SetMode(uint8_t *domain1_pd_, int8_t mode_);
+    int SetTargtVelocity(uint8_t *domain1_pd_, int32_t velocity_);
+
+
+
+
 
     uint8_t GetMode();
     int32_t GetActualPosition();
     int32_t GetActualVelocity();
     int16_t GetActualCurrent();
 
-    int Enable(uint8_t *domain1_pd);
-    int Homing(uint8_t *domain1_pd);
-    int SetMode(uint8_t mode);
+
     int SetTargtPosition(int32_t position);
-    int SetTargtVelocity(int32_t velocity);
     int SetTargtTorque(int16_t torque);
+
 
 
     enum
     {
-        init = 0,
-        enable_ing = 1,
-        enabled = 2,
-        homing = 3,
-        homed = 4,
-        position_mode = 5,
-        velocity_mode = 6,
-        turque_mode = 7
-    }motor_state{init};
+        STATE_INIT = 0,
+        STATE_ENABLEING= 1,
+        STATE_ENABLED = 2,
+        STATE_HOMING = 3,
+        STATE_HOMED = 4,
+        STATE_FALT = 5,
+
+        STATE_CSP = 8,
+        STATE_CSV = 9,
+        STATE_CST = 10,
+
+    }motor_state{STATE_INIT};
 
 private:
 
+    #define ELMO            0x0000009a, 0x00030924
+
+//    enum
+//    {
+
+//    }home_mode{35};
 };
 
 #endif
