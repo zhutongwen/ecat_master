@@ -29,8 +29,7 @@ void ControlTask(uint8_t *domain1_pd_, slaves_t &slaves_)
     #endif
 
     /****************************************************************************/
-    // IMU
-
+    //imu
     #ifdef IMU_Pos_0
     {
         std::cout<< "IMU_0---------"<< std::endl;
@@ -49,6 +48,8 @@ void ControlTask(uint8_t *domain1_pd_, slaves_t &slaves_)
     }
     #endif
 
+    /***************************************************************************/
+    //force
     #ifdef FORCE_Pos_0
         std::cout<< "force_0---------"<< std::endl;
         slaves_.force_0.DataRead(domain1_pd_);
@@ -65,13 +66,13 @@ void ControlTask(uint8_t *domain1_pd_, slaves_t &slaves_)
         if(slaves_.motor_0.motor_state == slaves_.motor_0.STATE_CSV)
         {
             static float f32angle = 0;
-            int32_t s32velocit = 0;
+            int32_t s32velocity = 0;
 
             f32angle += 0.0002;
             if(f32angle >= 1) f32angle = 0;
 
-            s32velocit = 655350.0*sin(f32angle*(2.0*PI));
-            slaves_.motor_0.SetTargtVelocity(domain1_pd_, static_cast<int32_t>(s32velocit));
+            s32velocity = 655350.0*sin(f32angle*(2.0*PI));
+            slaves_.motor_0.SetTargtVelocity(domain1_pd_, static_cast<int32_t>(s32velocity));
         }
 
         if(slaves_.motor_0.motor_state == slaves_.motor_0.STATE_INIT)

@@ -10,6 +10,7 @@ add_executable(master
                         ecat_force.cpp
                         ecat_motor.cpp
                         ecat_task.cpp
+                        record.cpp
                         "${PROJECT_SOURCE_DIR}/src/tinyxml2/tinyxml2.cpp")
 
 #add_executable(lan9252_IO lan9252_IO.c )

@@ -36,11 +36,11 @@
 
 #define PI  3.141592654
 
-#define IMU_Pos_0       0, 0
+//#define IMU_Pos_0       0, 0
 //#define FORCE_Pos_0     0, 1
 
 //#define IMU_Pos_1       0, 1
-#define MOTOR_Pos_0     0, 1
+#define MOTOR_Pos_0     0, 0
 
 
 typedef struct
@@ -65,6 +65,9 @@ typedef struct
 #endif
 
 }slaves_t;
+
+
+
 
 
 #endif

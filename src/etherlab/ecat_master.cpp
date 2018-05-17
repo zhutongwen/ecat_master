@@ -28,13 +28,15 @@
  *
  *****************************************************************************/
 
+#include <sys/stat.h>
 #include <thread>
 #include <time.h>
 #include "ecat_task.h"
 #include "ecat_wm_io.h"
 #include "ecat_master.h"
 #include "glog/logging.h"
-#include <sys/stat.h>
+#include "record.h"
+
 
 RT_TASK my_task;
 
@@ -52,6 +54,7 @@ static ec_domain_t *domain1 = NULL;
 static ec_domain_state_t domain1_state = {};
 
 static uint8_t *domain1_pd = NULL;
+
 
 
 /****************************************************************************/
@@ -94,11 +97,11 @@ void GlogInit(char **argv)
 //     google::SetLogDestination(google::GLOG_ERROR,Error);
 //     google::SetLogDestination(google::GLOG_FATAL,Fatal);
 
-     while(1)
+//     while(1)
      {
          LOG(INFO) <<"glog start"<<std::endl;
-         LOG(WARNING) <<"warning!!!!!!!!!"<<std::endl;
-         LOG(ERROR) <<"error!!!!!!!!!!!!!"<<std::endl;
+//         LOG(WARNING) <<"warning!!!!!!!!!"<<std::endl;
+//         LOG(ERROR) <<"error!!!!!!!!!!!!!"<<std::endl;
      }
 
 }
@@ -170,11 +173,13 @@ void rt_check_domain_state(void)
 
     ecrt_domain_state(domain1, &ds);
 
-    if (ds.working_counter != domain1_state.working_counter) {
+    if (ds.working_counter != domain1_state.working_counter)
+    {
         rt_printf("Domain1: WC %u.\n", ds.working_counter);
     }
 
-    if (ds.wc_state != domain1_state.wc_state) {
+    if (ds.wc_state != domain1_state.wc_state)
+    {
         rt_printf("Domain1: State %u.\n", ds.wc_state);
     }
 
@@ -188,15 +193,18 @@ void rt_check_master_state(void)
 
     ecrt_master_state(master, &ms);
 
-    if (ms.slaves_responding != master_state.slaves_responding) {
+    if (ms.slaves_responding != master_state.slaves_responding)
+    {
         rt_printf("%u slave(s).\n", ms.slaves_responding);
     }
 
-    if (ms.al_states != master_state.al_states) {
+    if (ms.al_states != master_state.al_states)
+    {
         rt_printf("AL states: 0x%02X.\n", ms.al_states);
     }
 
-    if (ms.link_up != master_state.link_up) {
+    if (ms.link_up != master_state.link_up)
+    {
         rt_printf("Link is %s.\n", ms.link_up ? "up" : "down");
     }
 
@@ -216,16 +224,15 @@ void my_task_proc(void *arg)
         ecrt_master_receive(master);
         ecrt_domain_process(domain1);
 
-        rt_check_domain_state();
-
-//        if (!(cycle_counter % 1000))
-        {
-            rt_check_master_state();
-        }
-
         //
+        rt_check_domain_state();
+        rt_check_master_state();
 
-        ControlTask(domain1_pd, slaves);
+//        if(master_state.slaves_responding == static_cast<unsigned int>(1))
+        if(master_state.al_states == 0x08)
+        {
+            ControlTask(domain1_pd, slaves);
+        }
 
         //distribute clock
         ecrt_master_application_time(master, rt_timer_read());
@@ -247,7 +254,7 @@ void signal_handler(int sig)
     run = 0;
 }
 
-void hell(void)
+void TimeThread(void)
 {
     time_t timep;
     std::string tm;
@@ -278,8 +285,12 @@ int main(int argc, char *argv[])
 
     GlogInit(argv);
 
-    std::thread t(hell);
-    t.detach();
+//    std::thread time(TimeThread);
+//    time.detach();
+
+    std::thread record(RecordThread);
+    record.detach();
+
 
     /* Perform auto-init of rt_print buffers if the task doesn't do so */
     rt_print_auto_init(1);
@@ -289,22 +300,23 @@ int main(int argc, char *argv[])
 
     mlockall(MCL_CURRENT | MCL_FUTURE);
 
-    printf("Requesting master...\n");
+    LOG(INFO) <<"Requesting master..."<<std::endl;
     master = ecrt_request_master(0);
     if (!master)
     {
-        std::cout << "ecrt_request_master error" << std::endl;
+        LOG(ERROR) << "ecrt_request_master error" <<std::endl;
         return -1;
     }
 
+    LOG(INFO) <<"ecrt_master_create_domain..."<<std::endl;
     domain1 = ecrt_master_create_domain(master);
     if (!domain1)
     {
-        std::cout << "ecrt_master_create_domain error" << std::endl;
+        LOG(ERROR) << "ecrt_master_create_domain error" << std::endl;
         return -1;
     }
 
-    printf("Creating slave configurations...\n");
+    LOG(INFO) <<"Creating slave configurations..."<<std::endl;
 
     #ifdef IMU_Pos_0
         slaves.imu_0.Init(master,IMU_Pos_0);
@@ -328,12 +340,13 @@ int main(int argc, char *argv[])
             sc_lan9252_01 = ecrt_master_slave_config(master, WMLAN9252_IO_POS, WMLAN9252_IO);
             if (!sc_lan9252_01)
             {
+                LOG(ERROR) << "Failed to configure slave" << std::endl;
                 return -1;
             }
 
             if (ecrt_slave_config_pdos(sc_lan9252_01, EC_END, wmlan9252_io_syncs))
             {
-                fprintf(stderr, "Failed to configure PDOs.\n");
+                LOG(ERROR) << "Failed to configure PDOs" << std::endl;
                 return -1;
             }
         }
@@ -341,34 +354,37 @@ int main(int argc, char *argv[])
 
     if (ecrt_domain_reg_pdo_entry_list(domain1, domain1_regs))
     {
-        fprintf(stderr, "PDO entry registration failed!\n");
+        LOG(ERROR) << "PDO entry registration failed!" << std::endl;
         return -1;
     }
 
-    printf("Activating master...\n");
+    LOG(INFO) <<"Activating master..."<<std::endl;
     if (ecrt_master_activate(master))
     {
+        LOG(ERROR) << "ecrt_master_activate failed!" << std::endl;
         return -1;
     }
 
+    LOG(INFO) <<"get domain data pointer..."<<std::endl;
     if (!(domain1_pd = ecrt_domain_data(domain1)))
     {
-        fprintf(stderr, "Failed to get domain data pointer.\n");
+        LOG(ERROR) << "Failed to get domain data pointer" << std::endl;
         return -1;
     }
 
+    LOG(INFO) <<"rt_task_create..."<<std::endl;
     int ret = rt_task_create(&my_task, "my_task", 0, 99, T_FPU);
     if (ret < 0)
     {
-        fprintf(stderr, "Failed to create task: %s\n", strerror(-ret));
+        LOG(ERROR) << "Failed to create task:"  << strerror(-ret) << std::endl;
         return -1;
     }
 
-    printf("Starting my_task...\n");
+    LOG(INFO) <<"Starting rt my_task..."<<std::endl;
     ret = rt_task_start(&my_task, &my_task_proc, NULL);
     if (ret < 0)
     {
-        fprintf(stderr, "Failed to start task: %s\n", strerror(-ret));
+        LOG(ERROR) << "Failed to start task:"  << strerror(-ret) << std::endl;
         return -1;
     }
 
@@ -377,10 +393,10 @@ int main(int argc, char *argv[])
         sched_yield();
     }
 
-    printf("Deleting realtime task...\n");
+    LOG(INFO) <<"Deleting realtime task..."<<std::endl;
     rt_task_delete(&my_task);
 
-    printf("End of Program\n");
+    LOG(INFO) <<"End of Program"<<std::endl;
     ecrt_release_master(master);
 
     return 0;
